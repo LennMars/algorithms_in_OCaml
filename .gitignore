@@ -6,6 +6,7 @@
 *.cmo
 *.cma
 *.o
+*.out
 *.omakedb
 *.omakedb.lock
 *~

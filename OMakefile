@@ -1,0 +1,10 @@
+NATIVE_ENABLED = false
+BYTE_ENABLED = true
+
+USE_OCAMLFIND = true
+OCAMLFLAGS +=
+OCAMLCFLAGS = -dtypes -g
+OCAMLFINDFLAGS +=
+
+
+.SUBDIRS: eratosthenes napsuck quicksort util
