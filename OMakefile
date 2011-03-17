@@ -3,7 +3,7 @@ BYTE_ENABLED = true
 
 USE_OCAMLFIND = true
 OCAMLFLAGS +=
-OCAMLCFLAGS = -dtypes -g
+OCAMLCFLAGS = -dtypes -g -w y
 OCAMLFINDFLAGS +=
 
 
