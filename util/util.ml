@@ -48,16 +48,12 @@ module List = struct
     | hd :: tl -> Printf.printf "%d " hd; print_float_list tl
 
   (** only first *)
-  let remove cond xs =
+  let remove cond =
     let rec remove_aux accum = function
-	[] -> List.rev accum
-      | hd :: tl ->
-	  if cond hd then
-	    List.rev accum @ tl
-	  else
-	    remove_aux (hd :: accum) tl
+	[] -> List.rev accum (* unfound *)
+      | hd :: tl -> if cond hd then List.rev accum @ tl else remove_aux (hd :: accum) tl
     in
-    remove_aux [] xs
+    remove_aux []
 
   let find_max f xs =
     if List.length xs = 0 then raise (Invalid_argument "") else
