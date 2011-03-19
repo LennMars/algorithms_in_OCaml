@@ -48,6 +48,12 @@ module List = struct
 
   let is_empty xs = if List.length xs = 0 then true else false
 
+  let single xs = if List.length xs = 1 then List.hd xs else
+    raise (Invalid_argument "The length of the list must be 1.")
+
+  let filter_some xs = List.filter (fun x -> match x with Some _ -> true | None -> false) xs
+    |> List.map (fun x -> match x with Some y -> y | None -> failwith "fatal error")
+
   let rec print_int_list = function
       [] -> Printf.printf "\n"
     | hd :: tl -> Printf.printf "%d " hd; print_int_list tl

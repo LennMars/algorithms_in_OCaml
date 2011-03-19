@@ -3,8 +3,8 @@ BYTE_ENABLED = true
 
 USE_OCAMLFIND = true
 OCAMLFLAGS +=
-OCAMLCFLAGS = -dtypes -g -w y
+OCAMLCFLAGS = -dtypes -g -w ys
 OCAMLFINDFLAGS +=
 
 
-.SUBDIRS: eratosthenes napsuck quicksort util
+.SUBDIRS: kruskal eratosthenes napsuck quicksort util
