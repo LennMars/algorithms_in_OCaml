@@ -25,6 +25,9 @@ module type Graph = sig
   val get : edge -> t -> weight
   val nodes : t -> int list
   val is_edge : edge -> t -> bool
+
+  (** is_adjacent e g tests whether e shares an endpoint with g. *)
+  val is_adjacent : edge -> t -> bool
 end
 
 module BaseGraph : functor (W : Weight) -> sig
@@ -41,7 +44,8 @@ module BaseGraph : functor (W : Weight) -> sig
   val exists : edge -> t -> bool
   val add' : edge -> weight -> t -> unit
   val remove' : edge -> t -> unit
-  val nodes : t -> int list
+  val head_nodes : t -> int list
+  val tail_nodes : t -> int list
   val get : edge -> t -> weight
   val is_edge : edge -> t -> bool
 end
@@ -49,20 +53,22 @@ end
   type weight = W.t
   type interedge = int * weight
   type t = interedge list array
-  let head = fst
-  let tail = snd
-  let dest = fst
-  let weight = snd
+  let head (e : edge) = fst e
+  let tail (e : edge) = snd e
+  let dest (x : interedge) = fst x
+  let weight (x : interedge) = snd x
   let is_endpoint p x = dest x = p
   let empty n = Array.make n []
   let is_empty = Array.for_all List.is_empty
   let exists (h, t) g =  List.exists (is_endpoint t) g.(h)
   let add' (h, t) weight g = g.(h) <- (t, weight) :: g.(h)
   let remove' (h, t) g = g.(h) <- List.remove (is_endpoint t) g.(h)
-  let nodes g = Array.mapi (fun i ends -> match ends with [] -> None | _ -> Some i) g
-	   |> Array.to_list
+  let head_nodes g = Array.to_list g
+	   |> List.mapi (fun i dests -> match dests with [] -> None | _ -> Some i)
 	   |> List.filter (fun x -> match x with Some _ -> true | None -> false)
-	   |> List.map (fun x -> match x with Some y -> y | None -> failwith "error")
+	   |> List.map (fun x -> match x with Some y -> y | None -> failwith "fatal error")
+  let tail_nodes g = Array.to_list g
+     |> List.flatten |> List.split |> fst |> IntSet.add_list IntSet.empty |> IntSet.elements
   let get (h, t) g = List.find (is_endpoint t) g.(h) |> snd
   let is_edge e g = List.exists (fun x -> dest x = tail e) g.(head e)
 end
@@ -91,6 +97,11 @@ module MakeDirectedGraph (W : Weight) : DirectedGraph with type weight = W.t
     let remove e g =
       remove' e g;
       g
+    let nodes g = IntSet.add_list (IntSet.add_list IntSet.empty (head_nodes g)) (tail_nodes g) |> IntSet.elements
+    let is_adjacent (h, t) g =
+      (List.count (fun n -> n = h || n = t) (nodes g) > 0) &&
+	not (is_edge (h, t) g) &&
+	not (is_edge (t, h) g)
   end
 
 module MakeUndirectedGraph (W : Weight) : UnirectedGraph with type weight = W.t
@@ -112,15 +123,21 @@ module MakeUndirectedGraph (W : Weight) : UnirectedGraph with type weight = W.t
       remove' e g;
       remove' (swap e) g;
       g
+    let nodes = head_nodes
+    let is_adjacent (h, t) g =
+      (List.count (fun n -> n = h || n = t) (nodes g) > 0) && not (is_edge (h, t) g)
   end
 
-module Int = struct
-  type t = int
+module Unit = struct
+  type t = unit
 end
 
-module Test = MakeDirectedGraph(Int)
+module UDG = MakeDirectedGraph(Unit)
 
-let g = Test.empty;;
+let g = UDG.empty 5;;
+UDG.add (3, 2) () g;;
+UDG.add (2, 4) () g;;
+UDG.add (3, 4) () g;;
 
 
 

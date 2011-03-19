@@ -10,11 +10,13 @@ let swap_arg f x y = f y x
 
 let maxf f x y = max (f x) (f y)
 
-let rec itere f n =
+let xor x y = x && (not y) || y && (not x)
+
+let rec iter f n =
   if n <= 0 then ()
   else begin
     f ();
-    itere f (n - 1)
+    iter f (n - 1)
   end;;
 
 let int_exp x y = (*does not have overflow catcher yet*)
@@ -32,6 +34,13 @@ let int_exp x y = (*does not have overflow catcher yet*)
       | hd :: tl -> int_exp_aux x tl (accum * accum * if hd then 1 else x)
     in
     int_exp_aux x is_even_list 1
+
+module Int = struct type t = int let compare = compare end
+module IntSet' = Set.Make (Int)
+module IntSet = struct
+  include IntSet'
+  let add_list = List.fold_left (swap_arg IntSet'.add)
+end
 
 
 module List = struct
@@ -59,12 +68,30 @@ module List = struct
     if List.length xs = 0 then raise (Invalid_argument "") else
       List.fold_left (fun x y -> if f x > f y then x else y) (List.hd xs) (List.tl xs)
 
-  let mapi f xs =
+  let mapi f =
     let rec mapi_aux f accum n = function
 	[] -> List.rev accum
       | x :: xs -> mapi_aux f (f n x :: accum) (n + 1) xs
     in
-    mapi_aux f [] 0 xs
+    mapi_aux f [] 0
+
+  let count cond xs = List.filter cond xs |> List.length
+
+  let rev_flatten xs =
+    let rec rev_flatten_aux accum = function
+	[] -> accum
+      | hd :: tl ->
+	  let rec rev_flatten_deep accum = function
+	      [] -> accum
+	    | hd :: tl -> rev_flatten_deep (hd :: accum) tl
+	  in
+	  rev_flatten_aux (rev_flatten_deep accum hd) tl
+    in
+    rev_flatten_aux [] xs
+
+  let flatten xs = rev_flatten xs |> List.rev
+
+  let concat = flatten
 
   let init_list f n =
     let rec init_list_aux n accum =
