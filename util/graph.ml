@@ -1,9 +1,13 @@
 open Util
 
 type edge = int * int
+type path = int list
 
 module type Weight = sig
   type t
+  val zero : t
+  val plus : t -> t -> t
+  val minus : t -> t -> t
 end
 
 module type Graph = sig
@@ -20,6 +24,7 @@ module type Graph = sig
   val is_empty : t -> bool
 
   val size : t -> int
+  val exists : edge -> t -> bool
   val add : edge -> weight -> t -> t
   val singleton : int -> edge -> weight -> t
 
@@ -40,7 +45,9 @@ module type Graph = sig
 
   (** find_path s t p g finds a s-t path whose all edges satisfies p by BFS.
       Raises Not_found when there is no such a path. *)
-  val find_path : int -> int -> (weight -> bool) -> t -> int list
+  val find_path : int -> int -> (weight -> bool) -> t -> path
+  val fold_through : ('a -> edge -> weight -> 'a) -> 'a -> path -> t -> 'a
+  val path_length : path -> t -> weight
 end
 
 module BaseGraph : functor (W : Weight) -> sig
@@ -63,7 +70,10 @@ module BaseGraph : functor (W : Weight) -> sig
   val get : edge -> t -> weight
   val adjacents : int -> t -> interedge list
   val is_edge : edge -> t -> bool
-  val find_path : int -> int -> (weight -> bool) -> t -> int list
+  val find_path : int -> int -> (weight -> bool) -> t -> path
+  val path_exists : path -> t -> bool
+  val fold_through : ('a -> edge -> weight -> 'a) -> 'a -> path -> t -> 'a
+  val path_length : path -> t -> weight
 end
  = functor (W : Weight) -> struct
   type weight = W.t
@@ -84,7 +94,7 @@ end
 	   |> List.mapi (fun i dests -> match dests with [] -> None | _ -> Some i)
 	   |> List.filter_some
   let tail_nodes g = Array.to_list g
-     |> List.flatten |> List.split |> fst |> IntSet.add_list IntSet.empty |> IntSet.elements
+	   |> List.flatten |> List.split |> fst |> IntSet.add_list IntSet.empty |> IntSet.elements
   let get (h, t) g = List.find (is_endpoint t) g.(h) |> snd
   let adjacents h g = g.(h)
   let is_edge e g = List.exists (fun x -> dest x = tail e) g.(head e)
@@ -109,6 +119,20 @@ end
 	  | None -> failwith "find_path : fatal error"
 	in
 	rebuild_path t [t]
+  let path_exists path g =
+    let rec path_exists_aux = function
+	[] -> true
+      | hd :: tl -> if exists hd g then path_exists_aux tl else false
+    in
+    path_exists_aux (to_chain path)
+  let fold_through f x path g =
+    if not (path_exists path g) then raise (Invalid_argument "That path does not exist in the graph.");
+    let rec fold_through_aux x = function
+	[] -> x
+      | hd :: tl -> fold_through_aux (f x hd (get hd g)) tl
+    in
+    fold_through_aux x (to_chain path)
+  let path_length = fold_through (fun i _ w -> W.plus i w) W.zero
 end
 
 module type DirectedGraph = sig (* stub *)
@@ -190,6 +214,9 @@ module MakeUndirectedGraph (W : Weight) : UnirectedGraph with type weight = W.t
 
 module Unit = struct
   type t = unit
+  let zero = ()
+  let plus () () = ()
+  let minus () () = ()
 end
 
 module UDG = MakeDirectedGraph(Unit)

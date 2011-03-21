@@ -1,7 +1,12 @@
 open Util
 open Graph
 
-module Int = struct type t = int end
+module Int = struct
+  type t = int
+  let zero = 0
+  let plus x y = x + y
+  let minus x y = x - y
+end
 module G = MakeUndirectedGraph (Int)
 
 let kruskal g =

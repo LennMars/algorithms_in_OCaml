@@ -35,6 +35,17 @@ let int_exp x y = (*does not have overflow catcher yet*)
     in
     int_exp_aux x is_even_list 1
 
+
+let to_chain = function (* ex. [1;2;3] -> [(1, 2); (2, 3)]*)
+    [] | [_] -> []
+  | hd :: tl ->
+      let rec to_chain_aux accum = function
+	  [] -> failwith "to_chain : fatal error."
+	| [last] -> List.rev accum
+	| hd :: tl -> to_chain_aux ((hd, List.hd tl) :: accum) tl
+      in
+      to_chain_aux [hd, List.hd tl] tl
+
 module Int = struct type t = int let compare = compare end
 module IntSet' = Set.Make (Int)
 module IntSet = struct
