@@ -42,6 +42,30 @@ module IntSet = struct
   let add_list = List.fold_left (swap_arg IntSet'.add)
 end
 
+module Queue2 : sig
+  type 'a t
+  val empty : 'a t
+  val singleton : 'a -> 'a t
+  val is_empty : 'a t -> bool
+  val length : 'a t -> int
+  val push : 'a -> 'a t -> 'a t
+  val pop : 'a t -> 'a * 'a t
+  val peek : 'a t -> 'a
+end = struct
+  type 'a t = 'a list
+  exception Empty
+  let empty = []
+  let singleton x = [x]
+  let is_empty = function [] -> true | _ -> false
+  let length = List.length
+  let push x q = x :: q
+  let pop = function
+      [] -> raise Empty
+    | hd :: tl -> (hd, tl)
+  let peek = function
+      [] -> raise Empty
+    | hd :: tl -> hd
+end
 
 module List = struct
   include List

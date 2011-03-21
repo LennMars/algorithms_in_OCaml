@@ -37,6 +37,10 @@ module type Graph = sig
 
   (** is_adjacent e g tests whether e shares an endpoint with g. *)
   val is_adjacent : edge -> t -> bool
+
+  (** find_path s t p g finds a s-t path whose all edges satisfies p by BFS.
+      Raises Not_found when there is no such a path. *)
+  val find_path : int -> int -> (weight -> bool) -> t -> int list
 end
 
 module BaseGraph : functor (W : Weight) -> sig
@@ -57,7 +61,9 @@ module BaseGraph : functor (W : Weight) -> sig
   val head_nodes : t -> int list
   val tail_nodes : t -> int list
   val get : edge -> t -> weight
+  val adjacents : int -> t -> interedge list
   val is_edge : edge -> t -> bool
+  val find_path : int -> int -> (weight -> bool) -> t -> int list
 end
  = functor (W : Weight) -> struct
   type weight = W.t
@@ -80,7 +86,29 @@ end
   let tail_nodes g = Array.to_list g
      |> List.flatten |> List.split |> fst |> IntSet.add_list IntSet.empty |> IntSet.elements
   let get (h, t) g = List.find (is_endpoint t) g.(h) |> snd
+  let adjacents h g = g.(h)
   let is_edge e g = List.exists (fun x -> dest x = tail e) g.(head e)
+  exception Found
+  let find_path s t p g =
+    let path_table = Array.make (size g) None in
+    let rec find_path_aux to_search =
+      if Queue2.is_empty to_search then raise Not_found
+      else
+	let (u, rest) = Queue2.pop to_search in
+	let test q (v, w) =
+	  if p w && path_table.(v) = None then path_table.(v) <- Some u;
+	  if v = t then raise Found else Queue2.push v q
+	in
+	let rest = List.fold_left test rest (adjacents u g) in
+	find_path_aux rest
+    in
+    try find_path_aux (Queue2.singleton s) with
+      Found ->
+	let rec rebuild_path v accum = match path_table.(v) with
+	    Some u -> if u = s then s :: accum else rebuild_path u (u :: accum)
+	  | None -> failwith "find_path : fatal error"
+	in
+	rebuild_path t [t]
 end
 
 module type DirectedGraph = sig (* stub *)
@@ -104,8 +132,8 @@ module MakeDirectedGraph (W : Weight) : DirectedGraph with type weight = W.t
       |> List.mapi (fun i xs -> List.map (fun x -> ((i, dest x), weight x)) xs)
       |> List.flatten
     let unite g1 g2 = edges g1
-      |> List.fold_left (fun g we ->
-	   try add (fst we) (snd we) g
+      |> List.fold_left (fun g (t, w) ->
+	   try add t w g
 	   with Invalid_argument _ -> raise (Invalid_argument "unite : edge overlapping."))
 	  g2
     let set e w g =
@@ -141,8 +169,8 @@ module MakeUndirectedGraph (W : Weight) : UnirectedGraph with type weight = W.t
       |> List.flatten
       |> List.filter_some
     let unite g1 g2 = edges g1
-      |> List.fold_left (fun g we ->
-	   try add (fst we) (snd we) g
+      |> List.fold_left (fun g (t, w) ->
+	   try add t w g
 	   with Invalid_argument _ -> raise (Invalid_argument "unite : edge overlapping."))
 	  g2
     let set e w g =
@@ -176,5 +204,6 @@ UDG.add (0, 1) () g2;;
 UDG.add (0, 2) () g2;;
 UDG.add (1, 2) () g2;;
 
+UDG.unite g1 g2;;
 
 
