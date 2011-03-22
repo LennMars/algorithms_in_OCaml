@@ -18,6 +18,7 @@ module type Graph = sig
   val exists : edge -> 'a t -> bool
   val add : edge -> 'a -> 'a t -> unit
   val singleton : int -> edge -> 'a -> 'a t
+  val copy : 'a t -> 'a t
 
   (** unite g1 g2 adds all edges of g1 to g2. *)
   val unite : 'a t -> 'a t -> unit
@@ -37,8 +38,12 @@ module type Graph = sig
   (** find_path s 'a t p g finds a s-t path whose all edges satisfies p by BFS.
       Raises Not_found when there is no such a path. *)
   val find_path : int -> int -> ('a -> bool) -> 'a t -> path
-  val fold_through : ('a -> edge -> 'a -> 'a) -> 'a -> path -> 'a t -> 'a
-(*   val map_through : ('a -> 'a) -> path -> 'a t -> unit*)
+  val fold_through : ('a -> edge -> 'b -> 'a) -> 'a -> path -> 'b t -> 'a
+  val map_through : ('a -> 'a) -> path -> 'a t -> unit
+  val map : ('a -> 'b) -> 'a t -> 'b t
+  val mape : (edge -> 'a -> 'b) -> 'a t -> 'b t
+  val iter : ('a -> unit) -> 'a t -> unit
+  val itere : (edge -> 'a -> unit) -> 'a t -> unit
 end
 
 module BaseGraph : sig
@@ -55,6 +60,7 @@ module BaseGraph : sig
   val exists : edge -> 'a t -> bool
   val add' : edge -> 'a -> 'a t -> unit
   val remove' : edge -> 'a t -> unit
+  val copy : 'a t -> 'a t
   val head_nodes : 'a t -> int list
   val tail_nodes : 'a t -> int list
   val get : edge -> 'a t -> 'a
@@ -63,7 +69,10 @@ module BaseGraph : sig
   val find_path : int -> int -> ('a -> bool) -> 'a t -> path
   val path_exists : path -> 'a t -> bool
   val fold_through : ('b -> edge -> 'a -> 'b) -> 'b -> path -> 'a t -> 'b
-(*   val map_through : ('a -> 'a) -> path -> 'a t -> 'a t *)
+  val map : ('a -> 'b) -> 'a t -> 'b t
+  val mape : (edge -> 'a -> 'b) -> 'a t -> 'b t
+  val iter : ('a -> unit) -> 'a t -> unit
+  val itere : (edge -> 'a -> unit) -> 'a t -> unit
 end
  = struct
   type 'a interedge = int * 'a
@@ -79,6 +88,7 @@ end
   let exists (h, t) g =  List.exists (is_endpoint t) g.(h)
   let add' (h, t) w g = g.(h) <- (t, w) :: g.(h)
   let remove' (h, t) g = g.(h) <- List.remove (is_endpoint t) g.(h)
+  let copy = Array.copy
   let head_nodes g = Array.to_list g
 	   |> List.mapi (fun i dests -> match dests with [] -> None | _ -> Some i)
 	   |> List.filter_some
@@ -95,11 +105,13 @@ end
       else
 	let (u, rest) = Queue2.pop to_search in
 	let test q (v, w) =
-	  if p w && path_table.(v) = None then path_table.(v) <- Some u;
-	  if v = t then raise Found else Queue2.push v q
+	  if p w && path_table.(v) = None then begin
+	    path_table.(v) <- Some u;
+	    if v = t then raise Found else Queue2.push v q
+	  end
+	  else q
 	in
-	let rest = List.fold_left test rest (adjacents u g) in
-	find_path_aux rest
+	find_path_aux (List.fold_left test rest (adjacents u g))
     in
     try find_path_aux (Queue2.singleton s) with
       Found ->
@@ -121,7 +133,30 @@ end
       | hd :: tl -> fold_through_aux (f x hd (get hd g)) tl
     in
     fold_through_aux x (to_chain path)
-
+    let map f g =
+      let rec map_aux accum = function
+	  [] -> accum
+	| (t, w) :: tl -> map_aux ((t, f w) :: accum) tl
+      in
+      Array.map (map_aux []) g
+    let mape f g =
+      let rec map_aux accum h = function
+	  [] -> accum
+	| (t, w) :: tl -> map_aux ((t, f (h, t) w) :: accum) h tl
+      in
+      Array.mapi (map_aux []) g
+    let iter f g =
+      let rec iter_aux = function
+	  [] -> ()
+	| (t, w) :: tl -> f w; iter_aux tl
+      in
+      Array.iter iter_aux g
+    let itere f g =
+      let rec iter_aux h = function
+	  [] -> ()
+	| (t, w) :: tl -> f (h, t) w; iter_aux h tl
+      in
+      Array.iteri iter_aux g
 end
 
 
@@ -152,6 +187,13 @@ module DirectedGraph : Graph
       num_share e g > 0 &&
 	not (is_edge e g) &&
 	not (is_edge (swap e) g)
+    let map_through f path g =
+      if not (path_exists path g) then raise (Invalid_argument "That path does not exist in the graph.");
+      let rec map_through_aux = function
+	  [] -> ()
+	| hd :: tl -> set hd (get hd g |> f) g; map_through_aux tl
+      in
+      map_through_aux (to_chain path)
   end
 
 module UndirectedGraph : Graph
@@ -184,6 +226,13 @@ module UndirectedGraph : Graph
     let num_share (h, t) g = List.count (fun n -> n = h || n = t) (nodes g)
     let is_adjacent e g =
       num_share e g > 0 && not (is_edge e g)
+    let map_through f path g =
+if not (path_exists path g) then raise (Invalid_argument "That path does not exist in the graph.");
+      let rec map_through_aux = function
+	  [] -> ()
+	| hd :: tl -> set hd (get hd g |> f) g; map_through_aux tl
+      in
+      map_through_aux (to_chain path)
   end
 
 let g1 = DirectedGraph.empty 5;;
