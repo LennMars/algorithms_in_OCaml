@@ -3,92 +3,81 @@ open Util
 type edge = int * int
 type path = int list
 
-module type Weight = sig
-  type t
-  val zero : t
-  val plus : t -> t -> t
-  val minus : t -> t -> t
-end
-
 module type Graph = sig
-  (** The type of weights assigned to each edge. *)
-  type weight
 
   (** The type of graphs. *)
-  type t
+  type 'a t
 
   (** empty n returns a graph with at most n nodes and no edge. *)
-  val empty : int -> t
+  val empty : int -> 'a t
 
   (** Test whether a graph has no edge or not. *)
-  val is_empty : t -> bool
+  val is_empty : 'a t -> bool
 
-  val size : t -> int
-  val exists : edge -> t -> bool
-  val add : edge -> weight -> t -> t
-  val singleton : int -> edge -> weight -> t
+  val size : 'a t -> int
+  val exists : edge -> 'a t -> bool
+  val add : edge -> 'a -> 'a t -> unit
+  val singleton : int -> edge -> 'a -> 'a t
 
   (** unite g1 g2 adds all edges of g1 to g2. *)
-  val unite : t -> t -> t
-  val set : edge -> weight -> t -> t
-  val remove : edge -> t -> t
-  val get : edge -> t -> weight
-  val nodes : t -> int list
-  val edges : t -> (edge * weight) list
-  val is_edge : edge -> t -> bool
+  val unite : 'a t -> 'a t -> unit
+  val set : edge -> 'a -> 'a t -> unit
+  val remove : edge -> 'a t -> unit
+  val get : edge -> 'a t -> 'a
+  val nodes : 'a t -> int list
+  val edges : 'a t -> (edge * 'a) list
+  val is_edge : edge -> 'a t -> bool
 
   (** num_share e g returns the number of endpoints that e shares with g. *)
-  val num_share : edge -> t -> int
+  val num_share : edge -> 'a t -> int
 
   (** is_adjacent e g tests whether e shares an endpoint with g. *)
-  val is_adjacent : edge -> t -> bool
+  val is_adjacent : edge -> 'a t -> bool
 
-  (** find_path s t p g finds a s-t path whose all edges satisfies p by BFS.
+  (** find_path s 'a t p g finds a s-t path whose all edges satisfies p by BFS.
       Raises Not_found when there is no such a path. *)
-  val find_path : int -> int -> (weight -> bool) -> t -> path
-  val fold_through : ('a -> edge -> weight -> 'a) -> 'a -> path -> t -> 'a
-  val path_length : path -> t -> weight
+  val find_path : int -> int -> ('a -> bool) -> 'a t -> path
+  val fold_through : ('a -> edge -> 'a -> 'a) -> 'a -> path -> 'a t -> 'a
+(*   val map_through : ('a -> 'a) -> path -> 'a t -> unit*)
 end
 
-module BaseGraph : functor (W : Weight) -> sig
-  type weight = W.t
-  type interedge = int * weight
-  type t = interedge list array
+module BaseGraph : sig
+  type 'a interedge = int * 'a
+  type 'a t = 'a interedge list array
   val head : edge -> int
   val tail : edge -> int
-  val dest : interedge -> int
-  val weight : interedge -> weight
-  val is_endpoint : int -> interedge -> bool
-  val empty : int -> t
-  val is_empty : t -> bool
-  val size : t -> int
-  val exists : edge -> t -> bool
-  val add' : edge -> weight -> t -> unit
-  val remove' : edge -> t -> unit
-  val head_nodes : t -> int list
-  val tail_nodes : t -> int list
-  val get : edge -> t -> weight
-  val adjacents : int -> t -> interedge list
-  val is_edge : edge -> t -> bool
-  val find_path : int -> int -> (weight -> bool) -> t -> path
-  val path_exists : path -> t -> bool
-  val fold_through : ('a -> edge -> weight -> 'a) -> 'a -> path -> t -> 'a
-  val path_length : path -> t -> weight
+  val dest : 'a interedge -> int
+  val weight : 'a interedge -> 'a
+  val is_endpoint : int -> 'a interedge -> bool
+  val empty : int -> 'a t
+  val is_empty : 'a t -> bool
+  val size : 'a t -> int
+  val exists : edge -> 'a t -> bool
+  val add' : edge -> 'a -> 'a t -> unit
+  val remove' : edge -> 'a t -> unit
+  val head_nodes : 'a t -> int list
+  val tail_nodes : 'a t -> int list
+  val get : edge -> 'a t -> 'a
+  val adjacents : int -> 'a t -> 'a interedge list
+  val is_edge : edge -> 'a t -> bool
+  val find_path : int -> int -> ('a -> bool) -> 'a t -> path
+  val path_exists : path -> 'a t -> bool
+  val fold_through : ('b -> edge -> 'a -> 'b) -> 'b -> path -> 'a t -> 'b
+(*   val map_through : ('a -> 'a) -> path -> 'a t -> 'a t *)
 end
- = functor (W : Weight) -> struct
-  type weight = W.t
-  type interedge = int * weight
-  type t = interedge list array
+ = struct
+  type 'a interedge = int * 'a
+  type 'a t = 'a interedge list array
   let head (e : edge) = fst e
   let tail (e : edge) = snd e
-  let dest (x : interedge) = fst x
-  let weight (x : interedge) = snd x
+  let dest (x : 'a interedge) = fst x
+  let weight (x : 'a interedge) = snd x
   let is_endpoint p x = dest x = p
   let empty n = Array.make n []
-  let is_empty = Array.for_all List.is_empty
+  let is_empty g = Array.for_all List.is_empty g
   let size = Array.length
   let exists (h, t) g =  List.exists (is_endpoint t) g.(h)
-  let add' (h, t) weight g = g.(h) <- (t, weight) :: g.(h)
+  let add' (h, t) w g = g.(h) <- (t, w) :: g.(h)
   let remove' (h, t) g = g.(h) <- List.remove (is_endpoint t) g.(h)
   let head_nodes g = Array.to_list g
 	   |> List.mapi (fun i dests -> match dests with [] -> None | _ -> Some i)
@@ -132,42 +121,31 @@ end
       | hd :: tl -> fold_through_aux (f x hd (get hd g)) tl
     in
     fold_through_aux x (to_chain path)
-  let path_length = fold_through (fun i _ w -> W.plus i w) W.zero
+
 end
 
-module type DirectedGraph = sig (* stub *)
-  include Graph
-end
-
-module type UnirectedGraph = sig (* stub *)
-  include Graph
-end
 
 (* loop and multigraph are prohibited *)
-module MakeDirectedGraph (W : Weight) : DirectedGraph with type weight = W.t
+module DirectedGraph : Graph
   = struct
-    include BaseGraph (W)
+    include BaseGraph
     let add e w g =
       if exists e g then raise (Invalid_argument "add : edge already exists.");
-      add' e w g;
-      g
+      add' e w g
     let singleton n e w = let g = empty n in add e w g; g
     let edges g = Array.to_list g
       |> List.mapi (fun i xs -> List.map (fun x -> ((i, dest x), weight x)) xs)
       |> List.flatten
     let unite g1 g2 = edges g1
-      |> List.fold_left (fun g (t, w) ->
-	   try add t w g
+      |> List.iter (fun(t, w) ->
+	   try add t w g2
 	   with Invalid_argument _ -> raise (Invalid_argument "unite : edge overlapping."))
-	  g2
     let set e w g =
       if exists e g = false then raise (Invalid_argument "set : edge doesn't exists.");
       remove' e g;
-      add' e w g;
-      g
+      add' e w g
     let remove e g =
-      remove' e g;
-      g
+      remove' e g
     let nodes g = IntSet.add_list (IntSet.add_list IntSet.empty (head_nodes g)) (tail_nodes g) |> IntSet.elements
     let num_share (h, t) g = List.count (fun n -> n = h || n = t) (nodes g)
     let is_adjacent e g =
@@ -176,15 +154,14 @@ module MakeDirectedGraph (W : Weight) : DirectedGraph with type weight = W.t
 	not (is_edge (swap e) g)
   end
 
-module MakeUndirectedGraph (W : Weight) : UnirectedGraph with type weight = W.t
+module UndirectedGraph : Graph
   = struct
-    include BaseGraph (W)
+    include BaseGraph
     let exists e g = exists e g || exists (swap e) g
     let add e w g =
       if exists e g then raise (Invalid_argument "add : edge already exists");
       add' e w g;
-      add' (swap e) w g;
-      g
+      add' (swap e) w g
     let singleton n e w = let g = empty n in add e w g; g
     let edges g = Array.to_list g
       |> List.mapi (fun i xs -> List.map
@@ -193,44 +170,32 @@ module MakeUndirectedGraph (W : Weight) : UnirectedGraph with type weight = W.t
       |> List.flatten
       |> List.filter_some
     let unite g1 g2 = edges g1
-      |> List.fold_left (fun g (t, w) ->
-	   try add t w g
+      |> List.iter (fun (t, w) ->
+	   try add t w g2
 	   with Invalid_argument _ -> raise (Invalid_argument "unite : edge overlapping."))
-	  g2
     let set e w g =
       if exists e g = false then raise (Invalid_argument "set : edge doesn't exists");
       remove' e g;
-      remove' (swap e) g;
-      g
+      remove' (swap e) g
     let remove e g =
       remove' e g;
-      remove' (swap e) g;
-      g
+      remove' (swap e) g
     let nodes = head_nodes
     let num_share (h, t) g = List.count (fun n -> n = h || n = t) (nodes g)
     let is_adjacent e g =
       num_share e g > 0 && not (is_edge e g)
   end
 
-module Unit = struct
-  type t = unit
-  let zero = ()
-  let plus () () = ()
-  let minus () () = ()
-end
+let g1 = DirectedGraph.empty 5;;
+DirectedGraph.add (3, 2) () g1;;
+DirectedGraph.add (2, 4) () g1;;
+DirectedGraph.add (3, 4) () g1;;
 
-module UDG = MakeDirectedGraph(Unit)
+let g2 = DirectedGraph.empty 5;;
+DirectedGraph.add (0, 1) () g2;;
+DirectedGraph.add (0, 2) () g2;;
+DirectedGraph.add (1, 2) () g2;;
 
-let g1 = UDG.empty 5;;
-UDG.add (3, 2) () g1;;
-UDG.add (2, 4) () g1;;
-UDG.add (3, 4) () g1;;
-
-let g2 = UDG.empty 5;;
-UDG.add (0, 1) () g2;;
-UDG.add (0, 2) () g2;;
-UDG.add (1, 2) () g2;;
-
-UDG.unite g1 g2;;
+DirectedGraph.unite g1 g2;;
 
 
