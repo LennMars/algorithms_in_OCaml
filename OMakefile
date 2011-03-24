@@ -7,4 +7,4 @@ OCAMLCFLAGS = -dtypes -g -w ys
 OCAMLFINDFLAGS +=
 
 
-.SUBDIRS: ford-fulkerson kruskal eratosthenes napsuck quicksort util
+.SUBDIRS: tree ford-fulkerson kruskal eratosthenes napsuck quicksort util
