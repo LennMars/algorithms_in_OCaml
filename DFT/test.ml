@@ -30,3 +30,4 @@ open String
 
 let x = DFT.dft (V "x") [|V "a";V "b";V "c";V "d"|] |> Array.map to_string
 let y = DFT.dft (V "y") [|V "a";V "b";V "c";V "d";V "e";V "f";V "g"|] |> Array.map to_string
+let z = DFT.dft (V "z") [|V "a";V "b";V "c";V "d";V "e";V "f";V "g";V "h"|] |> Array.map to_string

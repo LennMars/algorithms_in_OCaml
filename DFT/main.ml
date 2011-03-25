@@ -33,8 +33,9 @@ struct
     bitrev_aux [] i m |> to_int 0 1
 
   let dft w xs =
-    let m = Array.length xs |> minimum_bigger_power_of_two in
-    let n = int_exp 2 m in
+    let n = Array.length xs in
+    let m = minimum_bigger_power_of_two n in
+    let n' = int_exp 2 m in
     let ws = Array.init n (general_exp R.one ( *^ ) w)
     and pair step i =
       let span = int_exp 2 step in
@@ -45,12 +46,12 @@ struct
 	if step = m then xs
 	else
 	  let butterfly i x =
-	    let (is_even, j) = pair step i in
-	    let pow = int_exp 2 (m - step - 1) * i mod n in
+	    let (is_even, j) = pair step i
+	    and pow = int_exp 2 (m - step - 1) * i mod n in
 	    if is_even then x +^ xs.(j) *^ ws.(pow)
 	    else xs.(j) +^ x *^ ws.(pow)
 	  in
 	  dft_aux (Array.mapi butterfly xs) (step + 1)
     in
-    dft_aux (Array.init n (fun i -> try xs.(bitrev m i) with Invalid_argument _ -> R.zero)) 0
+    dft_aux (Array.init n' (fun i -> try xs.(bitrev m i) with Invalid_argument _ -> R.zero)) 0
 end
