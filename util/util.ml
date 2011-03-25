@@ -19,22 +19,31 @@ let rec iter f n =
     iter f (n - 1)
   end;;
 
-let int_exp x y = (*does not have overflow catcher yet*)
-  if y < 0 then failwith "y must be positive";
-    let is_even_list =
-      let rec is_even_list_ y accum =
-	if y = 0 then accum
-	else if (y mod 2 = 0) then is_even_list_ (y / 2) (true::accum)
-	else is_even_list_ ((y - 1) / 2) (false::accum)
-      in
-      is_even_list_ y []
-    in
-    let  rec int_exp_aux x is_even_list accum = match is_even_list with
-	[] -> accum
-      | hd :: tl -> int_exp_aux x tl (accum * accum * if hd then 1 else x)
-    in
-    int_exp_aux x is_even_list 1
 
+let general_exp one mul x y =
+  if y < 0 then failwith "y must be positive";
+  let is_even_list =
+    let rec is_even_list_ y accum =
+      if y = 0 then accum
+      else if (y mod 2 = 0) then is_even_list_ (y / 2) (true::accum)
+      else is_even_list_ ((y - 1) / 2) (false::accum)
+    in
+    is_even_list_ y []
+  in
+  let  rec int_exp_aux x is_even_list accum = match is_even_list with
+      [] -> accum
+    | hd :: tl -> int_exp_aux x tl (mul (mul accum accum) (if hd then one else x))
+  in
+  int_exp_aux x is_even_list one
+
+let int_exp = general_exp 1 ( * )
+
+let minimum_bigger_power_of_two n =
+  let rec aux accum = function
+      0 -> accum
+    | m -> aux (accum + 1) (m lsr 1)
+  in
+  aux 0 (n-1)
 
 let to_chain = function (* ex. [1;2;3] -> [(1, 2); (2, 3)]*)
     [] | [_] -> []
