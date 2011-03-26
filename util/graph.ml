@@ -24,6 +24,8 @@ module type Graph = sig
   val unite : 'a t -> 'a t -> unit
   val set : edge -> 'a -> 'a t -> unit
   val remove : edge -> 'a t -> unit
+  val heads_of : int -> 'a t -> int list
+  val tails_of : int -> 'a t -> int list
   val get : edge -> 'a t -> 'a
   val nodes : 'a t -> int list
   val edges : 'a t -> (edge * 'a) list
@@ -61,6 +63,8 @@ module BaseGraph : sig
   val add' : edge -> 'a -> 'a t -> unit
   val remove' : edge -> 'a t -> unit
   val copy : 'a t -> 'a t
+  val heads_of : int -> 'a t -> int list
+  val tails_of : int -> 'a t -> int list
   val head_nodes : 'a t -> int list
   val tail_nodes : 'a t -> int list
   val get : edge -> 'a t -> 'a
@@ -89,31 +93,35 @@ end
   let add' (h, t) w g = g.(h) <- (t, w) :: g.(h)
   let remove' (h, t) g = g.(h) <- List.remove (is_endpoint t) g.(h)
   let copy = Array.copy
+  let heads_of t g = Array.to_list g
+	      |> List.mapi (fun i l -> if List.exists (fun x -> dest x = t) l then Some i else None)
+	      |> List.filter_some
+  let tails_of h g = List.map dest g.(h)
   let head_nodes g = Array.to_list g
 	   |> List.mapi (fun i dests -> match dests with [] -> None | _ -> Some i)
 	   |> List.filter_some
   let tail_nodes g = Array.to_list g
 	   |> List.flatten |> List.split |> fst |> IntSet.add_list IntSet.empty |> IntSet.elements
-  let get (h, t) g = List.find (is_endpoint t) g.(h) |> snd
+  let get (h, t) g = List.find (is_endpoint t) g.(h) |> weight
   let adjacents h g = g.(h)
   let is_edge e g = List.exists (fun x -> dest x = tail e) g.(head e)
   exception Found
   let find_path s t p g =
     let path_table = Array.make (size g) None in
     let rec find_path_aux to_search =
-      if Queue2.is_empty to_search then raise Not_found
+      if Stack2.is_empty to_search then raise Not_found
       else
-	let (u, rest) = Queue2.pop to_search in
+	let (u, rest) = Stack2.pop to_search in
 	let test q (v, w) =
 	  if p w && path_table.(v) = None then begin
 	    path_table.(v) <- Some u;
-	    if v = t then raise Found else Queue2.push v q
+	    if v = t then raise Found else Stack2.push v q
 	  end
 	  else q
 	in
 	find_path_aux (List.fold_left test rest (adjacents u g))
     in
-    try find_path_aux (Queue2.singleton s) with
+    try find_path_aux (Stack2.singleton s) with
       Found ->
 	let rec rebuild_path v accum = match path_table.(v) with
 	    Some u -> if u = s then s :: accum else rebuild_path u (u :: accum)
@@ -196,44 +204,43 @@ module DirectedGraph : Graph
       map_through_aux (to_chain path)
   end
 
-module UndirectedGraph : Graph
-  = struct
-    include BaseGraph
-    let exists e g = exists e g || exists (swap e) g
-    let add e w g =
-      if exists e g then raise (Invalid_argument "add : edge already exists");
-      add' e w g;
-      add' (swap e) w g
-    let singleton n e w = let g = empty n in add e w g; g
-    let edges g = Array.to_list g
-      |> List.mapi (fun i xs -> List.map
-	   (fun x -> if i < dest x then Some ((i, dest x), weight x) else None)
-	   xs)
-      |> List.flatten
-      |> List.filter_some
-    let unite g1 g2 = edges g1
-      |> List.iter (fun (t, w) ->
-	   try add t w g2
-	   with Invalid_argument _ -> raise (Invalid_argument "unite : edge overlapping."))
-    let set e w g =
-      if exists e g = false then raise (Invalid_argument "set : edge doesn't exists");
-      remove' e g;
-      remove' (swap e) g
-    let remove e g =
-      remove' e g;
-      remove' (swap e) g
-    let nodes = head_nodes
-    let num_share (h, t) g = List.count (fun n -> n = h || n = t) (nodes g)
-    let is_adjacent e g =
-      num_share e g > 0 && not (is_edge e g)
-    let map_through f path g =
-if not (path_exists path g) then raise (Invalid_argument "That path does not exist in the graph.");
-      let rec map_through_aux = function
-	  [] -> ()
-	| hd :: tl -> set hd (get hd g |> f) g; map_through_aux tl
-      in
-      map_through_aux (to_chain path)
-  end
+module UndirectedGraph : Graph = struct
+  include BaseGraph
+  let exists e g = exists e g || exists (swap e) g
+  let add e w g =
+    if exists e g then raise (Invalid_argument "add : edge already exists");
+    add' e w g;
+    add' (swap e) w g
+  let singleton n e w = let g = empty n in add e w g; g
+  let edges g = Array.to_list g
+    |> List.mapi (fun i xs -> List.map
+	 (fun x -> if i < dest x then Some ((i, dest x), weight x) else None)
+	 xs)
+    |> List.flatten
+    |> List.filter_some
+  let unite g1 g2 = edges g1
+    |> List.iter (fun (t, w) ->
+	 try add t w g2
+	 with Invalid_argument _ -> raise (Invalid_argument "unite : edge overlapping."))
+  let set e w g =
+    if exists e g = false then raise (Invalid_argument "set : edge doesn't exists");
+    remove' e g;
+    remove' (swap e) g
+  let remove e g =
+    remove' e g;
+    remove' (swap e) g
+  let nodes = head_nodes
+  let num_share (h, t) g = List.count (fun n -> n = h || n = t) (nodes g)
+  let is_adjacent e g =
+    num_share e g > 0 && not (is_edge e g)
+  let map_through f path g =
+    if not (path_exists path g) then raise (Invalid_argument "That path does not exist in the graph.");
+    let rec map_through_aux = function
+	[] -> ()
+      | hd :: tl -> set hd (get hd g |> f) g; map_through_aux tl
+    in
+    map_through_aux (to_chain path)
+end
 
 let g1 = DirectedGraph.empty 5;;
 DirectedGraph.add (3, 2) () g1;;

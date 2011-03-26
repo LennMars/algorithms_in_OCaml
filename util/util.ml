@@ -55,14 +55,19 @@ let to_chain = function (* ex. [1;2;3] -> [(1, 2); (2, 3)]*)
       in
       to_chain_aux [hd, List.hd tl] tl
 
+let string_of_option to_string = function
+    None -> "None"
+  | Some x -> to_string x
+
 module Int = struct type t = int let compare = compare end
 module IntSet' = Set.Make (Int)
 module IntSet = struct
   include IntSet'
   let add_list = List.fold_left (swap_arg IntSet'.add)
+  let print s = IntSet'.iter (Printf.printf "%d ") s; Printf.printf "\n"
 end
 
-module Queue2 : sig
+module Stack2 : sig
   type 'a t
   val empty : 'a t
   val singleton : 'a -> 'a t
@@ -117,6 +122,18 @@ module List = struct
   let find_max f xs =
     if List.length xs = 0 then raise (Invalid_argument "") else
       List.fold_left (fun x y -> if f x > f y then x else y) (List.hd xs) (List.tl xs)
+
+  let find_max_val f xs =
+    if List.length xs = 0 then raise (Invalid_argument "") else
+      List.fold_left (fun x y -> if x > f y then x else f y) (f (List.hd xs)) (List.tl xs)
+
+  let find_min f xs =
+    if List.length xs = 0 then raise (Invalid_argument "") else
+      List.fold_left (fun x y -> if f x < f y then x else y) (List.hd xs) (List.tl xs)
+
+  let find_min_val f xs =
+    if List.length xs = 0 then raise (Invalid_argument "") else
+      List.fold_left (fun x y -> if x < f y then x else f y) (f (List.hd xs)) (List.tl xs)
 
   let mapi f =
     let rec mapi_aux f accum n = function
