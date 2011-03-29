@@ -5,6 +5,7 @@ FILES[] =
   test
 
 OCAMLINCLUDES += ../util
+OCAMLPACKS[] = unix
 OCAML_LIBS[] = ../util/utils
 
 OCamlProgram($(PROGRAM), $(FILES))

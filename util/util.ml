@@ -95,6 +95,8 @@ module List = struct
   let single xs = if List.length xs = 1 then List.hd xs else
     raise (Invalid_argument "The length of the list must be 1.")
 
+  let last xs = List.nth xs (List.length xs - 1)
+
   let to_chain = function (* ex. [1;2;3] -> [(1, 2); (2, 3)]*)
       [] | [_] -> []
     | hd :: tl ->
@@ -210,12 +212,14 @@ module List = struct
     in
     split_while_aux f [] lst lst
 
-  let range a b =
-    let rec range_aux a b accum =
+  let range a b inc =
+    let rec aux a b inc accum =
       if a > b then accum
-      else range_aux a (b - 1) (b :: accum)
+      else aux a (b - inc) inc (b :: accum)
     in
-    range_aux a b [] (* ex. range 1 3 = [1; 2; 3] *)
+    if inc = 0 then raise (Invalid_argument "range : increment must be positive.")
+    else if inc > 0 then aux a (b - (b - a) mod inc) inc []
+    else aux b a (-inc) [] |> List.rev
 
   let take_ns ns lst =
     let rec take_ns_aux ns lst l accum =
@@ -226,6 +230,16 @@ module List = struct
 	  take_ns_aux ns (List.tl lst) (l + 1) accum
     in
     take_ns_aux ns lst 0 [] (* preserves order *)
+
+  let random_permutation n =
+    let rec aux accum emerged n =
+      if n <= 0 then accum
+      else
+	let r = Random.int n in
+	let r = IntSet.fold (fun e r -> if e <= r then r + 1 else r) emerged r in
+	aux (r :: accum) (IntSet.add r emerged) (n - 1)
+    in
+    aux [] IntSet.empty n
 end
 
 module Array = struct
@@ -292,4 +306,15 @@ module Array = struct
 
   (** Same to that of List *)
   let exists cond xs = Array.fold_left (fun p x -> p || cond x) false xs
+
+  let permutate order xs =
+    let n = Array.length xs in
+    if List.length order <> n then raise (Invalid_argument "Array length must be the same.");
+    let a = Array.make n xs.(0) in
+    let rec permutate_aux m = function
+	[] -> a
+      | hd :: tl -> a.(m) <- xs.(hd); permutate_aux (m + 1) tl
+    in
+    permutate_aux 0 order
+
 end
