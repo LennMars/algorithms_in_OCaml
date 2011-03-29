@@ -11,7 +11,7 @@ let max_flow s t g =
   let rec max_flow_aux flow =
     try
       let aug_path = G.find_path s t (fun (f, c) -> c - f > 0) g in
-      let aug_path_chain = to_chain aug_path in
+      let aug_path_chain = List.to_chain aug_path in
       let bottleneck =
 	let (f1, c1) = (G.get (List.hd aug_path_chain) g) in
 	G.fold_through (fun r e (f, c) -> min r (c - f)) (c1 - f1) aug_path g

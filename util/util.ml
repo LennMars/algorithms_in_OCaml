@@ -12,12 +12,17 @@ let maxf f x y = max (f x) (f y)
 
 let xor x y = x && (not y) || y && (not x)
 
-let rec iter f n =
+let rec iter n f x =
   if n <= 0 then ()
   else begin
-    f ();
-    iter f (n - 1)
+    f x;
+    iter (n - 1) f x
   end;;
+
+let time timer n f x =
+  let start = timer () in
+  iter n f x;
+  (timer () -. start) /. float n
 
 
 let general_exp one mul x y =
@@ -25,8 +30,8 @@ let general_exp one mul x y =
   let is_even_list =
     let rec is_even_list_ y accum =
       if y = 0 then accum
-      else if (y mod 2 = 0) then is_even_list_ (y / 2) (true::accum)
-      else is_even_list_ ((y - 1) / 2) (false::accum)
+      else if (y mod 2 = 0) then is_even_list_ (y lsr 1) (true::accum)
+      else is_even_list_ (y lsr 1) (false::accum)
     in
     is_even_list_ y []
   in
@@ -44,16 +49,6 @@ let minimum_bigger_power_of_two n =
     | m -> aux (accum + 1) (m lsr 1)
   in
   aux 0 (n-1)
-
-let to_chain = function (* ex. [1;2;3] -> [(1, 2); (2, 3)]*)
-    [] | [_] -> []
-  | hd :: tl ->
-      let rec to_chain_aux accum = function
-	  [] -> failwith "to_chain : fatal error."
-	| [last] -> List.rev accum
-	| hd :: tl -> to_chain_aux ((hd, List.hd tl) :: accum) tl
-      in
-      to_chain_aux [hd, List.hd tl] tl
 
 let string_of_option to_string = function
     None -> "None"
@@ -100,6 +95,16 @@ module List = struct
   let single xs = if List.length xs = 1 then List.hd xs else
     raise (Invalid_argument "The length of the list must be 1.")
 
+  let to_chain = function (* ex. [1;2;3] -> [(1, 2); (2, 3)]*)
+      [] | [_] -> []
+    | hd :: tl ->
+	let rec to_chain_aux accum = function
+	    [] -> failwith "to_chain : fatal error."
+	  | [last] -> List.rev accum
+	  | hd :: tl -> to_chain_aux ((hd, List.hd tl) :: accum) tl
+	in
+	to_chain_aux [hd, List.hd tl] tl
+
   let filter_some xs = List.filter (fun x -> match x with Some _ -> true | None -> false) xs
     |> List.map (fun x -> match x with Some y -> y | None -> failwith "fatal error")
 
@@ -111,7 +116,7 @@ module List = struct
       [] -> Printf.printf "\n"
     | hd :: tl -> Printf.printf "%d " hd; print_float_list tl
 
-  (** only first *)
+  (** remove cond xs removes the first element satisfies cond from xs.*)
   let remove cond =
     let rec remove_aux accum = function
 	[] -> List.rev accum (* unfound *)
@@ -160,12 +165,26 @@ module List = struct
 
   let concat = flatten
 
-  let init_list f n =
-    let rec init_list_aux n accum =
+  let init f n =
+    let rec init_aux n accum =
       if n <= 0 then accum else
-	init_list_aux (n - 1) (f (n - 1) :: accum)
+	init_aux (n - 1) (f (n - 1) :: accum)
     in
-    init_list_aux n []
+    init_aux n []
+
+  let make n x =
+    let rec make_aux n accum =
+      if n <= 0 then accum else
+	make_aux (n - 1) (x :: accum)
+    in
+    make_aux n []
+
+  let map_tail f =
+    let rec map_tail_aux accum = function
+	[] -> List.rev accum
+      | hd :: tl -> map_tail_aux (f hd :: accum) tl
+    in
+    map_tail_aux []
 
   let average_first n lst =
     let n = min n (List.length lst) in

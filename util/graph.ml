@@ -133,14 +133,14 @@ end
 	[] -> true
       | hd :: tl -> if exists hd g then path_exists_aux tl else false
     in
-    path_exists_aux (to_chain path)
+    path_exists_aux (List.to_chain path)
   let fold_through f x path g =
     if not (path_exists path g) then raise (Invalid_argument "That path does not exist in the graph.");
     let rec fold_through_aux x = function
 	[] -> x
       | hd :: tl -> fold_through_aux (f x hd (get hd g)) tl
     in
-    fold_through_aux x (to_chain path)
+    fold_through_aux x (List.to_chain path)
     let map f g =
       let rec map_aux accum = function
 	  [] -> accum
@@ -201,7 +201,7 @@ module DirectedGraph : Graph
 	  [] -> ()
 	| hd :: tl -> set hd (get hd g |> f) g; map_through_aux tl
       in
-      map_through_aux (to_chain path)
+      map_through_aux (List.to_chain path)
   end
 
 module UndirectedGraph : Graph = struct
@@ -239,7 +239,7 @@ module UndirectedGraph : Graph = struct
 	[] -> ()
       | hd :: tl -> set hd (get hd g |> f) g; map_through_aux tl
     in
-    map_through_aux (to_chain path)
+    map_through_aux (List.to_chain path)
 end
 
 let g1 = DirectedGraph.empty 5;;
