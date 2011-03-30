@@ -1,7 +1,7 @@
 PROGRAM = camlprog
 
 FILES[] =
-  quicksort
+  main
   test
 
 OCAMLINCLUDES += ../util

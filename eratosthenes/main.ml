@@ -1,19 +1,12 @@
 open Util
-
-module Int = struct
-  type t = int
-  let compare = compare
-end
-
-module IntSet = Set.Make(Int)
+open IntSet
 
 let eratosthenes n =
-  let rec eratosthenes_aux set =
-    let minimum = IntSet.min_elt set
-    in
+  let rec eratosthenes_aux primes remains =
+    let minimum = min_elt remains in
     if minimum * minimum > n then
-      set
+      union primes remains
     else
-      eratosthenes_aux (IntSet.filter (fun m -> m mod minimum <> 0) set)
+      eratosthenes_aux (add minimum primes) (filter (fun m -> m mod minimum <> 0) remains)
   in
-  List.range 2 n |> List.fold_left (swap_arg IntSet.add) IntSet.empty |> eratosthenes_aux |> IntSet.elements
+  List.range 2 n 1 |> add_list empty |> eratosthenes_aux empty |> elements

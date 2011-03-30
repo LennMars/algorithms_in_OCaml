@@ -1,5 +1,5 @@
 #load "unix.cma";;
 #directory "../util";;
 #load "../util/utils.cma";;
-#load "quicksort.cmo";;
+#load "main.cmo";;
 #use "test.ml";;
