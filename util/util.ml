@@ -62,35 +62,10 @@ module IntSet = struct
   let print s = IntSet'.iter (Printf.printf "%d ") s; Printf.printf "\n"
 end
 
-module Stack2 : sig
-  type 'a t
-  val empty : 'a t
-  val singleton : 'a -> 'a t
-  val is_empty : 'a t -> bool
-  val length : 'a t -> int
-  val push : 'a -> 'a t -> 'a t
-  val pop : 'a t -> 'a * 'a t
-  val peek : 'a t -> 'a
-end = struct
-  type 'a t = 'a list
-  exception Empty
-  let empty = []
-  let singleton x = [x]
-  let is_empty = function [] -> true | _ -> false
-  let length = List.length
-  let push x q = x :: q
-  let pop = function
-      [] -> raise Empty
-    | hd :: tl -> (hd, tl)
-  let peek = function
-      [] -> raise Empty
-    | hd :: tl -> hd
-end
-
 module List = struct
   include List
 
-  let is_empty xs = if List.length xs = 0 then true else false
+  let is_empty xs = List.length xs = 0
 
   let single xs = if List.length xs = 1 then List.hd xs else
     raise (Invalid_argument "The length of the list must be 1.")
@@ -317,4 +292,57 @@ module Array = struct
     in
     permutate_aux 0 order
 
+end
+
+
+(**
+    reference : Okasaki, C. (1995) Simple and Efficient Purely Functional Queues and Deques. J. Functional Programming, 5(4), 583–592.
+ *)
+module Queue2 : sig
+  type 'a t
+  val empty : 'a t
+  val is_empty : 'a t -> bool
+  val length : 'a t -> int
+  val singleton : 'a -> 'a t
+  val push : 'a -> 'a t -> 'a t
+  val pop : 'a t -> 'a * 'a t
+  val peek : 'a t -> 'a
+end = struct
+  type 'a t = 'a list * 'a list
+  let empty = ([], [])
+  let is_empty (l, r) = List.is_empty l && List.is_empty r
+  let length (l, r) = List.length l + List.length r
+  let singleton e = ([], [e])
+  let push e (l, r) = (l, e :: r)
+  let rec pop (l, r) = match l with
+      [] -> pop (List.rev r, [])
+    | hd :: tl -> (hd, (tl, r))
+  let rec peek (l, r) = match l with
+      [] -> peek (List.rev r, [])
+    | hd :: tl -> hd
+end
+
+module Stack2 : sig
+  type 'a t
+  val empty : 'a t
+  val singleton : 'a -> 'a t
+  val is_empty : 'a t -> bool
+  val length : 'a t -> int
+  val push : 'a -> 'a t -> 'a t
+  val pop : 'a t -> 'a * 'a t
+  val peek : 'a t -> 'a
+end = struct
+  type 'a t = 'a list
+  exception Empty
+  let empty = []
+  let singleton x = [x]
+  let is_empty = function [] -> true | _ -> false
+  let length = List.length
+  let push x q = x :: q
+  let pop = function
+      [] -> raise Empty
+    | hd :: tl -> (hd, tl)
+  let peek = function
+      [] -> raise Empty
+    | hd :: tl -> hd
 end
