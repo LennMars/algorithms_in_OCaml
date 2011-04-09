@@ -1,14 +1,19 @@
 FILES[] =
+  Ubigraph
   graph
+  draw
+
+OCAMLINCLUDES += ../util
+OCAML_LIBS[] = ../util/Utils
+OCAMLPACKS[] = xmlrpc-light
 
 LIB = graph
 
-
 .DEFAULT: $(OCamlLibrary $(LIB), $(FILES))
 
-.PHONY: clean
+.PHONY: clean mktop
 clean:
   rm -f \
      $(filter-proper-targets $(glob $(addsuffix .*, $(FILES))))
-
-
+mktop:
+  ocamlfind ocamlmktop -I ../util -o ubigraphtop -package xmlrpc-light,findlib -linkpkg -custom util.cmo Ubigraph.cmo graph.cmo draw.cmo

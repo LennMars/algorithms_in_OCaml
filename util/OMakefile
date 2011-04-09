@@ -1,6 +1,5 @@
 FILES[] =
   util
-  graph
 
 LIB = utils
 
