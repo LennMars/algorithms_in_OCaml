@@ -1,0 +1,14 @@
+FILES[] =
+  graph
+
+LIB = graph
+
+
+.DEFAULT: $(OCamlLibrary $(LIB), $(FILES))
+
+.PHONY: clean
+clean:
+  rm -f \
+     $(filter-proper-targets $(glob $(addsuffix .*, $(FILES))))
+
+
