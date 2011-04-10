@@ -1,6 +1,7 @@
 open Util
 open Main
 
+(* symbol *)
 module String = struct
   type t = V of string | P of t * t | M of t * t | E of t * int
   let zero = V "0"
@@ -31,3 +32,25 @@ open String
 let x = DFT.dft (V "x") [|V "a";V "b";V "c";V "d"|] |> Array.map to_string
 let y = DFT.dft (V "y") [|V "a";V "b";V "c";V "d";V "e";V "f";V "g"|] |> Array.map to_string
 let z = DFT.dft (V "z") [|V "a";V "b";V "c";V "d";V "e";V "f";V "g";V "h"|] |> Array.map to_string
+
+
+(* complex number *)
+module Complex = struct
+  type t = float * float
+  let zero = (0., 0.)
+  let one = (1., 0.)
+  let ( +^ ) (xr, xi) (yr, yi) = (xr +. yr, xi +. yi)
+  let ( *^ ) (xr, xi) (yr, yi) = (xr *. yr -. xi *. yi, xr *. yi +. yr *. xi)
+  let ( =^ ) x y = x = y
+end
+
+module DFT2 = Make (Complex)
+
+open Complex
+
+let pi = atan 1. *. 4.
+let rect n m = Array.init (2 * n) (fun i -> if n - m <= i && i < n + m then one else zero)
+let kernel n =
+  let theta = -1. *. pi /. float n in
+  (cos theta, sin theta)
+let sinc n m = DFT2.dft (kernel n) (rect n m)

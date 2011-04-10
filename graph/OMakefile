@@ -1,3 +1,6 @@
+# UbiGraph, xmlrpc-light and Ubigraph.ml(likely contained in xmlrpc-light package) are needed.
+# You can obtain the custom ocaml toplevel named "ubigraphtop", which enables interactive graph visualization with UbiGraph, by `omake mktop`. Before running ubigraphtop you should launch UbiGraph server. test.ml will be not compiled by omake but loaded in ubigraphtop automaticaly(see .ocamlinit).
+
 FILES[] =
   Ubigraph
   graph
