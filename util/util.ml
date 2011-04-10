@@ -67,9 +67,11 @@ module List = struct
 
   let delete_nth n xs =
     if n < 0 then
-      xs
+      raise (Invalid_argument "delete_nth")
     else if n = 0 then
       List.tl xs
+    else if n = 1 then
+      List.hd xs :: (List.tl (List.tl xs))
     else
       let tl_field xsr = Obj.field xsr 1 in
       let rec aux n xsr_orig xsr =
