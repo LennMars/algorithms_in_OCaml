@@ -65,6 +65,35 @@ end
 module List = struct
   include List
 
+  let delete_nth n xs =
+    if n < 0 then
+      xs
+    else if n = 0 then
+      List.tl xs
+    else
+      let tl_field xsr = Obj.field xsr 1 in
+      let rec aux n xsr_orig xsr =
+	let tl = xsr |> tl_field |> tl_field in
+	if n > 0 && Obj.obj tl = 0 then
+	  raise (Invalid_argument "delete_nth")
+	else if n = 0 then let _ = begin
+	  if Obj.obj tl = 0 then
+	    Obj.set_field xsr 1 (Obj.repr 0)
+	  else
+	    Obj.set_field xsr 1 tl
+	end in Obj.obj xsr_orig
+	else aux (n - 1) xsr_orig (Obj.field xsr 1)
+      in
+      aux (n - 1) (Obj.repr xs) (Obj.repr xs |> Obj.dup)
+
+  let delete_nth_naive n xs =
+    let rec aux n xs accum =
+      if n <= 0 then List.rev accum @ List.tl xs
+      else aux (n - 1) (List.tl xs) (List.hd xs :: accum)
+    in
+    aux n xs []
+
+
   let is_empty xs = List.length xs = 0
 
   let single xs = if List.length xs = 1 then List.hd xs else

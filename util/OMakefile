@@ -3,7 +3,6 @@ FILES[] =
 
 LIB = utils
 
-
 .DEFAULT: $(OCamlLibrary $(LIB), $(FILES))
 
 .PHONY: clean
