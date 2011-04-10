@@ -1,3 +1,7 @@
 各種アルゴリズムをOCamlで実装しています.
 
 Required(in graph related modules) : xmlrpc-light, UbiGraph and everything they require.
+
+参考文献:
+[1] George T. Heineman, Gary Pollice, Stanley Selkow 著, 黒川 利明, 黒川 洋 訳. アルゴリズムクイックリファレンス. O'Reilly Japan, 2010.
+[2] Okasaki, C. (1995) Simple and Efficient Purely Functional Queues and Deques. J. Functional Programming, 5(4), 583–592.
