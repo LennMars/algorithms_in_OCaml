@@ -1,3 +1,3 @@
 各種アルゴリズムをOCamlで実装しています.
 
-Required(in graph related modules) : xmlrpc-light, UbiGraph and everything they requires.
+Required(in graph related modules) : xmlrpc-light, UbiGraph and everything they require.
