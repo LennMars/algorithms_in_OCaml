@@ -1,0 +1,15 @@
+type t
+val r : int * int -> t
+val ( +^ ) : t -> t -> t
+val ( -^ ) : t -> t -> t
+val ( *^ ) : t -> t -> t
+val ( /^ ) : t -> t -> t
+val ( >^ ) : t -> t -> bool
+val ( >=^ ) : t -> t -> bool
+val ( <^ ) : t -> t -> bool
+val ( <=^ ) : t -> t -> bool
+val ( =^ ) : t -> t -> bool
+val ( <>^ ) : t -> t -> bool
+val neg : t -> t
+val float_of_rational : t -> float
+val rational_of_int : int -> t
