@@ -1,4 +1,4 @@
 #directory "../util";;
 #load "../util/utils.cma";;
 #load "redBlackTree.cmo";;
-#use "test.ml";;
+#use "./test.ml";;

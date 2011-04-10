@@ -7,4 +7,4 @@ OCAMLCFLAGS = -dtypes -g -w ys
 OCAMLFINDFLAGS +=
 
 
-.SUBDIRS: timer_test dijkstra DFT tree ford-fulkerson kruskal eratosthenes napsuck sort util graph
+.SUBDIRS: geometry timer_test dijkstra DFT tree ford-fulkerson kruskal eratosthenes napsuck sort util graph

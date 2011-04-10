@@ -1,2 +1,2 @@
 #directory "../util"
-#use "test.ml"
+#use "./test.ml"
