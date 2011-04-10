@@ -38,18 +38,14 @@ let convex_hull points =
       let (c, r) = List.hd hull, List.tl hull in
       let (b, r) = List.hd r, List.tl r in
       let a = List.hd r in
-      if Point2D.ccw a b c = Left then
-	getout (List.delete_nth_naive 1 hull)
-      else
-	hull
+      if Point2D.ccw a b c = Left then getout (List.delete_nth_naive 1 hull)
+      else hull
   and aux is_upper pointset hull =
     if Point2DSet.is_empty pointset then
       hull
     else
-      let (m, r) = if is_upper then
-	Point2DSet.remove_min pointset
-      else
-	Point2DSet.remove_max pointset
+      let (m, r) =
+	(if is_upper then Point2DSet.remove_min else Point2DSet.remove_max) pointset
       in
       aux is_upper r (getout (m :: hull))
   in
