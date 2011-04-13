@@ -1,0 +1,4 @@
+#directory "../util";;
+#load "../util/utils.cma";;
+#load "main.cmo";;
+#use "./test.ml";;
