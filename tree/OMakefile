@@ -1,6 +1,7 @@
 PROGRAM = camlprog
 
 FILES[] =
+  splayTree
   redBlackTree
   test
 
