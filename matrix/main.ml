@@ -1,11 +1,32 @@
 open Util
 
-let vec_mul_vec x y =
+let ( *^ ) x y =
   let ans = ref 0. in
   for i = 0 to (Array.length x - 1) do
     ans := !ans +. x.(i) *. y.(i)
   done;
   !ans
+
+let ( *~ ) a x =
+  Array.map (( *. ) a) x
+
+let ( +^ ) x y =
+  let n = Array.length x in
+  let ans = Array.make n 0. in
+  for i = 0 to (n - 1) do
+    ans.(i) <- x.(i) +. y.(i)
+  done;
+  ans
+
+let ( -^ ) x y =
+  let n = Array.length x in
+  let ans = Array.make n 0. in
+  for i = 0 to (n - 1) do
+    ans.(i) <- x.(i) -. y.(i)
+  done;
+  ans
+
+let norm x = sqrt(x *^ x)
 
 module SparseMatrix = struct
   type t = float array * int array * int array
@@ -52,5 +73,17 @@ module SparseMatrix = struct
 	  mul (i + 1) num tl col
     in
     mul 0 num row col
+  let cg a b x0 =
+    let rec aux x p r =
+      if norm r < 1e-9 *. norm b then x
+      else
+	let ap = mut_mul_vec a p in
+	let alpha = (r *^ p) /. (p *^ ap) in
+	let x = x +^ alpha *~ p in
+	let r = r -^ alpha *~ ap in
+	let beta = (-1.) *. (r *^ ap) /. (p *^ ap) in
+	let p = r +^ beta *~ p in
+	aux x p r
+    and r0 = b -^ mut_mul_vec a x0 in
+    aux x0 r0 r0
 end
-
