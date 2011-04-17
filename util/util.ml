@@ -65,6 +65,24 @@ end
 module List = struct
   include List
 
+  let take n xs =
+    let rec aux n xs accum =
+      if n <= 0 then List.rev accum
+      else if xs = [] then raise (Invalid_argument "take : too much length")
+      else aux (n - 1) (List.tl xs) (List.hd xs :: accum)
+    in
+    aux n xs []
+
+  let rec drop n xs =
+    if n <= 0 then xs
+    else if xs = [] then raise (Invalid_argument "drop : too much length")
+    else drop (n - 1) (List.tl xs)
+
+  let rec drop_while p xs =
+    if xs = [] then []
+    else if p (List.hd xs) then drop_while p (List.tl xs)
+    else xs
+
   let delete_nth n xs =
     if n < 0 then
       raise (Invalid_argument "delete_nth")
@@ -246,6 +264,58 @@ module List = struct
 	aux (r :: accum) (IntSet.add r emerged) (n - 1)
     in
     aux [] IntSet.empty n
+
+  let remove_adjacent = function
+      [] -> []
+    | hd :: tl ->
+	let rec aux pred accum xs =
+	  match xs with
+	    [] -> List.rev accum
+	  | hd :: tl -> if hd = pred then aux pred accum tl else aux hd (hd :: accum) tl
+	in
+	aux hd [hd] tl
+
+  let remove_adjacent_tuple m xs =
+      let rec remove pattern xs = (* Some : succeed to remove, None : failed to remove *)
+	if pattern = [] then
+	  Some xs
+	else if xs = [] then
+	  None
+	else if List.hd pattern = List.hd xs then
+	  remove (List.tl pattern) (List.tl xs)
+	else
+	  None
+      in
+      let rec remove_eager pattern xs =
+	match remove pattern xs with
+	  None -> xs
+	| Some xs' -> remove_eager pattern xs'
+      in
+      let rec aux pred xs accum =
+	let removed = remove_eager pred xs in
+	if removed = [] then
+	  List.rev accum
+	else
+	  aux (List.tl pred @ [List.hd removed]) (List.tl removed) (List.hd removed :: accum)
+      in
+      aux (take m xs) (drop m xs) (take m xs |> List.rev)
+
+  let n_divide n k =
+    if n <= 0 || k <= 0 then raise (Invalid_argument "n_divide");
+    let rec aux n k =
+      if k = 1 then
+	[[n]]
+      else
+	let rec aux2 n k i accum =
+	  if i <= 0 then accum
+	  else
+	    let shorten = List.map (fun xs -> i :: xs) (aux (n - i) (k - 1)) in
+	    aux2 n k (i - 1) (shorten @ accum)
+	in
+	aux2 n k (n - 1) []
+    in
+    aux n k
+
 end
 
 module Array = struct
@@ -376,4 +446,49 @@ end = struct
   let peek = function
       [] -> raise Empty
     | hd :: tl -> hd
+end
+
+(* reference : http://d.hatena.ne.jp/blanketsky/20070221/1172002969 *)
+module LazyList(*  : sig
+  type 'a t
+  val from : int -> int t
+  val head : 'a t -> 'a
+  val tail : 'a t -> 'a t
+  val take : int -> 'a t -> 'a list
+  val map  : ('a -> 'b) -> 'a t -> 'b t
+  val nth  : int -> 'a t -> 'a
+  val primes : int t
+end *)
+  =
+struct
+  type 'a t = Cons of 'a * ('a t lazy_t)
+
+  let rec from n = Cons (n, lazy (from (n+1)))
+
+  let head (Cons (x, _)) = x
+  let tail (Cons (_, xs)) = Lazy.force xs
+
+  let take n s =
+   let rec take' m (Cons (x, xs)) l =
+     if m = 0 then List.rev l
+     else take' (m-1) (Lazy.force xs) (x :: l)
+   in
+     take' n s []
+
+  let rec map f (Cons (x, xs)) =
+    Cons (f x, lazy (map f (Lazy.force xs)))
+
+  let rec nth n (Cons (x, xs)) =
+    if n = 1 then x
+    else nth (n-1) (Lazy.force xs)
+
+  (* remove multiples of n *)
+  let rec sift n (Cons (x, xs)) =
+    if x mod n <> 0 then Cons (x, lazy (sift n (Lazy.force xs)))
+    else sift n (Lazy.force xs)
+
+  let rec sieve (Cons (x, xs)) =
+    Cons (x, lazy (sieve (sift x (Lazy.force xs))))
+
+  let primes = sieve (from 2)
 end
