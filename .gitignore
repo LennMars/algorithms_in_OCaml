@@ -1,3 +1,5 @@
+graph/Ubigraph.ml
+graph/ubigraphtop
 *.omc
 *.run
 *.opt
