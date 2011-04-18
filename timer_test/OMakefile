@@ -17,3 +17,4 @@ clean:
   rm -f \
      $(filter-proper-targets $(glob $(addsuffix .*, $(FILES)))) \
      $(PROGRAM).run $(PROGRAM).opt
+

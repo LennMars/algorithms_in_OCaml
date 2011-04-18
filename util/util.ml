@@ -65,6 +65,11 @@ end
 module List = struct
   include List
 
+  let sub n len xs =
+    let xs = Array.of_list xs in
+    try Array.sub xs n len |> Array.to_list with
+      Invalid_argument _ -> raise (Invalid_argument "List.sub")
+
   let take n xs =
     let rec aux n xs accum =
       if n <= 0 then List.rev accum
