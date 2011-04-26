@@ -30,5 +30,5 @@ module Make (F : Field) = struct
   let lex x y = compare (List.hd x) (List.hd y)
   let glex x y = compare (degree x) (degree y) * 2 + lex x y
   let grevlex x y = compare (degree x) (degree y) * 2 - compare (List.last x) (List.last y)
-
+  let leading_term order f = List.find_max_with order snd f
 end

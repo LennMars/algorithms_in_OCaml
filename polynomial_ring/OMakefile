@@ -1,10 +1,11 @@
 PROGRAM = camlprog
 
 FILES[] =
-  polynomial_ring
-  test
+  ../rational/rational
+  polynomialRing
+  polynomialRing_test
 
-OCAMLINCLUDES += ../util
+OCAMLINCLUDES += ../util ../rational
 OCAML_LIBS[] = ../util/utils
 
 OCamlProgram($(PROGRAM), $(FILES))
