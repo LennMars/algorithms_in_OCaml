@@ -12,6 +12,14 @@ let maxf f x y = max (f x) (f y)
 
 let xor x y = x && (not y) || y && (not x)
 
+let incr x = x := !x + 1
+
+let triple1 (x, _, _) = x
+let triple2 (_, x, _) = x
+let triple3 (_, _, x) = x
+
+let pi = atan 1. *. 4.
+
 let rec iter n f x =
   if n <= 0 then ()
   else begin
