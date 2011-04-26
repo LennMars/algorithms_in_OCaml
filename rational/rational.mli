@@ -10,6 +10,8 @@ val ( <^ ) : t -> t -> bool
 val ( <=^ ) : t -> t -> bool
 val ( =^ ) : t -> t -> bool
 val ( <>^ ) : t -> t -> bool
+val one : t
+val zero : t
 val negative : t -> t
 val inverse : t -> t
 val float_of_rational : t -> float
