@@ -31,15 +31,20 @@ module Point2DSet = struct
 end
 
 let convex_hull points =
+  let get3 r = try
+    let (c, r) = List.hd r, List.tl r in
+    let (b, r) = List.hd r, List.tl r in
+    let a = List.hd r in
+    (a, b, c)
+  with
+    Failure "hd" -> raise Not_found
+  in
   let rec getout hull =
-    if List.length hull < 3 then
-      hull
-    else
-      let (c, r) = List.hd hull, List.tl hull in
-      let (b, r) = List.hd r, List.tl r in
-      let a = List.hd r in
+    try
+      let (a, b, c) = get3 hull in
       if Point2D.ccw a b c = Left then getout (List.delete_nth_naive 1 hull)
       else hull
+    with Not_found -> hull
   and aux is_upper pointset hull =
     if Point2DSet.is_empty pointset then
       hull
