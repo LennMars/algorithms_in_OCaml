@@ -3,5 +3,8 @@
 Required(in graph related modules) : xmlrpc-light, UbiGraph and everything they require.
 
 参考文献:
-[1] George T. Heineman, Gary Pollice, Stanley Selkow 著, 黒川 利明, 黒川 洋 訳. アルゴリズムクイックリファレンス. O'Reilly Japan, 2010.
-[2] Okasaki, C. (1995) Simple and Efficient Purely Functional Queues and Deques. J. Functional Programming, 5(4), 583–592.
+[1] George T. Heineman, Gary Pollice, Stanley Selkow 著. 黒川 利明, 黒川 洋 訳. アルゴリズムクイックリファレンス. O'Reilly Japan, 2010.
+[2] Okasaki, C. Simple and Efficient Purely Functional Queues and Deques. J. Functional Programming, 5(4), 583–592, 1995.
+[3] D.Cox, J.Little, D.O'Shea. Ideals, Varieties, and Algorithms -- An Introduction to Commutative Algebraic Geometry and Commutative Algebra. Springer-Verlag, 1991.
+[4] 野呂 正行, 横山 和弘. グレブナー基底の計算 基礎篇 計算代数入門. 東京大学出版会, 2003.
+[5] B.Korte, J.Vygen 著. 浅野 孝夫, 浅野 泰仁, 小野 孝男, 平田 富夫 訳. 組合せ最適化-理論とアルゴリズム 第二版. シュプリンガージャパン, 2009.
