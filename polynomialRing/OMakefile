@@ -1,12 +1,13 @@
 PROGRAM = camlprog
 
 FILES[] =
-  ../rational/rational
+  ../rational/rationalBig
   polynomialRing
   polynomialRing_test
 
 OCAMLINCLUDES += ../util ../rational
 OCAML_LIBS[] = ../util/utils
+OCAML_OTHER_LIBS[] += nums
 
 OCamlProgram($(PROGRAM), $(FILES))
 

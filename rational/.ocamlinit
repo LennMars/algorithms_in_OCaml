@@ -1,4 +1,6 @@
 #directory "../util";;
 #load "../util/utils.cma";;
+#load "nums.cma";;
 #load "rational.cmo";;
-#use "./test.ml";;
+#load "rationalBig.cmo";;
+#use "./rational_test.ml";;

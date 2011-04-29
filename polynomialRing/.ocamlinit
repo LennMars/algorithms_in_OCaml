@@ -1,0 +1,7 @@
+#directory "../util";;
+#directory "../rational";;
+#load "../util/utils.cma";;
+#load "nums.cma";;
+#load "../rational/rationalBig.cmo";;
+#load "polynomialRing.cmo";;
+#use "./polynomialRing_test.ml";;

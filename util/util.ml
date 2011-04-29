@@ -353,6 +353,11 @@ module Array = struct
 	done;
 	xs2
 
+  let map2 f xs ys =
+    let n = Array.length xs in
+    if n <> Array.length ys then raise (Invalid_argument "map2")
+    else Array.init n (fun i -> f xs.(i) ys.(i))
+
   (** Swap two elements at the designated locations. destructive. *)
   let swap i j xs =
     let elm_j = xs.(j) in
@@ -396,6 +401,19 @@ module Array = struct
 
   (** Same to that of List *)
   let for_all cond xs = Array.fold_left (fun p x -> p && cond x) true xs
+
+  let for_all2 cond xs ys =
+    let n = Array.length xs in
+    if n <> Array.length ys then raise (Invalid_argument "for_all2")
+    else
+      let p = ref true in
+      let _ =
+	for i = 0 to n - 1 do
+	  if not (cond xs.(i) ys.(i)) then p := false
+	done
+      in
+      !p
+
 
   (** Same to that of List *)
   let exists cond xs = Array.fold_left (fun p x -> p || cond x) false xs

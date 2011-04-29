@@ -31,5 +31,8 @@ let one = (1, 1)
 let zero = (0, 1)
 let negative (p, q) = (-p, q)
 let inverse (p, q) = if p < 0 then (-q, -p) else (q, p)
-let float_of_rational (p, q) = float p /. float q
+let float_of_rational (p, q) =
+  if q = 0 then failwith "Division_by_zero at rational"
+  else float p /. float q
 let rational_of_int i = (i, 1)
+let to_string r = float_of_rational r |> string_of_float

@@ -1,4 +1,0 @@
-#directory "../util";;
-#load "../util/utils.cma";;
-#load "polynomial_ring.cmo";;
-#use "./test.ml";;
