@@ -1,3 +1,4 @@
 open Util;;
-Printf.printf "Prime numbers up to 30 are : \n";
-Main.eratosthenes 30 |> List.print_int_list
+let n = Sys.argv.(1) |> int_of_string;;
+Printf.printf "Prime numbers up to %d are : \n" n;
+Main.eratosthenes n |> List.print_int_list
