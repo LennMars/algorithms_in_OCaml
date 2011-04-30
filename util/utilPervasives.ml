@@ -71,11 +71,6 @@ module IntSet = struct
   let print s = IntSet'.iter (Printf.printf "%d ") s; Printf.printf "\n"
 end
 
-
-
-(**
-    reference : Okasaki, C. (1995) Simple and Efficient Purely Functional Queues and Deques. J. Functional Programming, 5(4), 583–592.
- *)
 module Queue2 : sig
   type 'a t
   val empty : 'a t
