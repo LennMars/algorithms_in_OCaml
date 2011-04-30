@@ -1,4 +1,7 @@
 FILES[] =
+  utilPervasives
+  utilList
+  utilArray
   util
 
 LIB = utils
