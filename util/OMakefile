@@ -4,7 +4,7 @@ FILES[] =
   utilArray
   util
 
-LIB = utils
+LIB = util
 
 .DEFAULT: $(OCamlLibrary $(LIB), $(FILES))
 

@@ -3,9 +3,8 @@ PROGRAM = camlprog
 FILES[] =
   main
 
-OCAMLINCLUDES += ../util
-OCAMLPACKS[] = unix
-OCAML_LIBS[] = ../util/utils
+
+OCAMLPACKS[] += unix
 
 OCamlProgram($(PROGRAM), $(FILES))
 

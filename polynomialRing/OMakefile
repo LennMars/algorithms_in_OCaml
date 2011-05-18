@@ -5,8 +5,8 @@ FILES[] =
   polynomialRing
   polynomialRing_test
 
-OCAMLINCLUDES += ../util ../rational
-OCAML_LIBS[] = ../util/utils
+OCAMLINCLUDES += ../rational
+OCAML_LIBS[] +=
 OCAML_OTHER_LIBS[] += nums
 
 OCamlProgram($(PROGRAM), $(FILES))

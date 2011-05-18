@@ -5,8 +5,6 @@ FILES[] =
   rationalBig
   rational_test
 
-OCAMLINCLUDES += ../util
-OCAML_LIBS[] = ../util/utils
 OCAML_OTHER_LIBS += nums
 
 OCamlProgram($(PROGRAM), $(FILES))

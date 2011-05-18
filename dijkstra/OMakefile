@@ -4,8 +4,8 @@ FILES[] =
   main
   test
 
-OCAMLINCLUDES += ../util ../graph
-OCAML_LIBS[] = ../util/utils ../graph/graph
+OCAMLINCLUDES += ../graph
+OCAML_LIBS[] += ../graph/graph
 
 OCamlProgram($(PROGRAM), $(FILES))
 

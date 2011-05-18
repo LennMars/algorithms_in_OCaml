@@ -148,12 +148,14 @@ let make n x =
   in
   make_aux n []
 
-let map_tail f =
-  let rec map_tail_aux accum = function
+let map_orig = List.map
+
+let map f =
+  let rec aux accum = function
       [] -> List.rev accum
-    | hd :: tl -> map_tail_aux (f hd :: accum) tl
+    | hd :: tl -> aux (f hd :: accum) tl
   in
-  map_tail_aux []
+  aux []
 
 let average_first n lst =
   let n = min n (List.length lst) in
@@ -258,4 +260,3 @@ let n_divide n k =
       aux2 n k (n - 1) []
   in
   aux n k
-

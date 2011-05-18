@@ -3,9 +3,6 @@ PROGRAM = camlprog
 FILES[] =
   sequentialPrediction
 
-OCAMLINCLUDES += ../util
-OCAML_LIBS[] = ../util/utils
-
 OCamlProgram($(PROGRAM), $(FILES))
 
 .DEFAULT: $(if $(BYTE_ENABLED), $(PROGRAM).run) \

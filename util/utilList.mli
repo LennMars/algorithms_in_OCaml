@@ -31,13 +31,14 @@ val flatten : 'a list list -> 'a list
 val concat : 'a list list -> 'a list
 val init : (int -> 'a) -> int -> 'a list
 val make : int -> 'a -> 'a list
-val map_tail : ('a -> 'b) -> 'a list -> 'b list
+val map_orig : ('a -> 'b) -> 'a list -> 'b list
+val map : ('a -> 'b) -> 'a list -> 'b list
 val average_first : int -> float list -> float
 val average : float list -> float
 val split_while : ('a -> bool) -> 'a list -> 'a list * 'a list
 val range : int -> int -> int -> int list
 val take_ns : int list -> 'a list -> 'a list
-val random_permutation : int -> UtilPervasives.IntSet.elt list
+val random_permutation : int -> int list
 val remove_adjacent : 'a list -> 'a list
 val remove_adjacent_tuple : int -> 'a list -> 'a list
 val n_divide : int -> int -> int list list

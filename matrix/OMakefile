@@ -4,9 +4,6 @@ FILES[] =
   main
   test
 
-OCAMLINCLUDES += ../util
-OCAML_LIBS[] = ../util/utils
-
 OCamlProgram($(PROGRAM), $(FILES))
 
 .DEFAULT: $(if $(BYTE_ENABLED), $(PROGRAM).run) \

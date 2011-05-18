@@ -6,8 +6,6 @@ FILES[] =
   graph
   draw
 
-OCAMLINCLUDES += ../util
-OCAML_LIBS[] = ../util/Utils
 OCAMLPACKS[] = xmlrpc-light
 
 LIB = graph
