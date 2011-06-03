@@ -1,5 +1,6 @@
 (** Extended List Module. *)
 
+val iteri : (int -> 'a -> unit) -> 'a list -> unit
 val sub : int -> int -> 'a list -> 'a list
 val take : int -> 'a list -> 'a list
 val drop : int -> 'a list -> 'a list

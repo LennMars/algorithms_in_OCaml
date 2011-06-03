@@ -8,59 +8,71 @@ let swap (a, b) = (b, a)
 
 let swap_arg f x y = f y x
 
- let maxf f x y = max (f x) (f y)
+let maxf f x y = max (f x) (f y)
 
- let xor x y = x && (not y) || y && (not x)
+let xor x y = x && (not y) || y && (not x)
 
- let incr x = x := !x + 1
+let incr x = x := !x + 1
 
- let triple1 (x, _, _) = x
- let triple2 (_, x, _) = x
- let triple3 (_, _, x) = x
+let triple1 (x, _, _) = x
+let triple2 (_, x, _) = x
+let triple3 (_, _, x) = x
 
- let pi = atan 1. *. 4.
+let pi = atan 1. *. 4.
 
- let rec iter n f x =
-   if n <= 0 then ()
-   else begin
-     f x;
-     iter (n - 1) f x
-   end;;
+let rec iter n f x =
+  if n <= 0 then ()
+  else begin
+    f x;
+    iter (n - 1) f x
+  end;;
 
- let time timer n f x =
-   let start = timer () in
-   iter n f x;
-   (timer () -. start) /. float n
+let time timer n f x =
+  let start = timer () in
+  iter n f x;
+  (timer () -. start) /. float n
 
+let rec bisection f a b =
+  let (fa, fb, c) = f a, f b, (a +. b) /. 2.
+  and is_same_sign x y =
+      let sign x = if x > 0. then true else false in
+      (sign x && sign y) || (not (sign x) && not (sign y))
+  in
+  if a > b || classify_float a = FP_infinite || classify_float b = FP_infinite then
+    raise (Invalid_argument "bisection")
+  else if is_same_sign fa fb then bisection f (2. *. a -. c) (2. *. b -. c)
+  else if abs_float (f c) < 10e-9 then c
+  else if is_same_sign fa (f c) then bisection f c b
+  else bisection f a c
 
- let general_exp one mul x y =
-   if y < 0 then failwith "y must be positive";
-   let is_even_list =
-     let rec is_even_list_ y accum =
-       if y = 0 then accum
-       else if (y mod 2 = 0) then is_even_list_ (y lsr 1) (true::accum)
-       else is_even_list_ (y lsr 1) (false::accum)
-     in
-     is_even_list_ y []
-   in
-   let  rec int_exp_aux x is_even_list accum = match is_even_list with
-       [] -> accum
-     | hd :: tl -> int_exp_aux x tl (mul (mul accum accum) (if hd then one else x))
-   in
-   int_exp_aux x is_even_list one
+let general_exp one mul x y =
+  if y < 0 then failwith "y must be positive";
+  let is_even_list =
+    let rec is_even_list_ y accum =
+      if y = 0 then accum
+      else if (y mod 2 = 0) then is_even_list_ (y lsr 1) (true::accum)
+      else is_even_list_ (y lsr 1) (false::accum)
+    in
+    is_even_list_ y []
+  in
+  let  rec int_exp_aux x is_even_list accum = match is_even_list with
+      [] -> accum
+    | hd :: tl -> int_exp_aux x tl (mul (mul accum accum) (if hd then one else x))
+  in
+  int_exp_aux x is_even_list one
 
- let int_exp = general_exp 1 ( * )
+let int_exp = general_exp 1 ( * )
 
- let minimum_bigger_power_of_two n =
-   let rec aux accum = function
-       0 -> accum
-     | m -> aux (accum + 1) (m lsr 1)
-   in
-   aux 0 (n-1)
+let minimum_bigger_power_of_two n =
+  let rec aux accum = function
+      0 -> accum
+    | m -> aux (accum + 1) (m lsr 1)
+  in
+  aux 0 (n-1)
 
- let string_of_option to_string = function
-     None -> "None"
-   | Some x -> to_string x
+let string_of_option to_string = function
+    None -> "None"
+  | Some x -> to_string x
 
 
 module Int = struct type t = int let compare = compare end
@@ -122,15 +134,15 @@ end
 
 (* reference : http://d.hatena.ne.jp/blanketsky/20070221/1172002969 *)
 module LazyList(*  : sig
-  type 'a t
-  val from : int -> int t
-  val head : 'a t -> 'a
-  val tail : 'a t -> 'a t
-  val take : int -> 'a t -> 'a list
-  val map  : ('a -> 'b) -> 'a t -> 'b t
-  val nth  : int -> 'a t -> 'a
-  val primes : int t
-end *)
+		   type 'a t
+		   val from : int -> int t
+		   val head : 'a t -> 'a
+		   val tail : 'a t -> 'a t
+		   val take : int -> 'a t -> 'a list
+		   val map  : ('a -> 'b) -> 'a t -> 'b t
+		   val nth  : int -> 'a t -> 'a
+		   val primes : int t
+		   end *)
   =
 struct
   type 'a t = Cons of 'a * ('a t lazy_t)
@@ -141,11 +153,11 @@ struct
   let tail (Cons (_, xs)) = Lazy.force xs
 
   let take n s =
-   let rec take' m (Cons (x, xs)) l =
-     if m = 0 then List.rev l
-     else take' (m-1) (Lazy.force xs) (x :: l)
-   in
-     take' n s []
+    let rec take' m (Cons (x, xs)) l =
+      if m = 0 then List.rev l
+      else take' (m-1) (Lazy.force xs) (x :: l)
+    in
+    take' n s []
 
   let rec map f (Cons (x, xs)) =
     Cons (f x, lazy (map f (Lazy.force xs)))
@@ -164,3 +176,4 @@ struct
 
   let primes = sieve (from 2)
 end
+

@@ -1,5 +1,12 @@
 open UtilPervasives
 
+let iteri f xs =
+  let rec aux n = function
+      [] -> ()
+    | hd :: tl -> f n hd; aux (n + 1) tl
+  in
+  aux 0 xs
+
 let sub n len xs =
   let xs = Array.of_list xs in
   try Array.sub xs n len |> Array.to_list with
@@ -7,15 +14,13 @@ let sub n len xs =
 
 let take n xs =
   let rec aux n xs accum =
-    if n <= 0 then List.rev accum
-    else if xs = [] then raise (Invalid_argument "take : too much length")
+    if n <= 0 || xs = [] then List.rev accum
     else aux (n - 1) (List.tl xs) (List.hd xs :: accum)
   in
   aux n xs []
 
 let rec drop n xs =
-  if n <= 0 then xs
-  else if xs = [] then raise (Invalid_argument "drop : too much length")
+  if n <= 0 || xs = [] then xs
   else drop (n - 1) (List.tl xs)
 
 let rec drop_while p xs =
