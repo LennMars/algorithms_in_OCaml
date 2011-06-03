@@ -11,4 +11,6 @@ graph/ubigraphtop
 *.out
 *.omakedb
 *.omakedb.lock
+util/META
+util/install
 *~
