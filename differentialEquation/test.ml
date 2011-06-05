@@ -1,5 +1,5 @@
 (* simulate duplex pendulum by symplectic euler method *)
-let h = 0.001 (* step size *)
+let h = 0.005 (* step size *)
 let (m1, m2) = 1., 0.1 (* weight *)
 let (l1, l2) = 1., 0.1 (* length *)
 let gravity = 9.8 (* gravity acceleration *)

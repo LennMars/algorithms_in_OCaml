@@ -37,9 +37,10 @@ let main turn (m1, m2) (l1, l2) gravity h (theta1, theta2, theta_dot1, theta_dot
     let (f1, f2, g) = f1 x qd, f2 x qd, g qd in
     let q1_next = q1 +. h *. f1 /. (l1 *. l1 *. l2 *. g)
     and q2_next = q2 +. h *. f2 /. (m2 *. l1 *. l2 *. l2 *. g)
-    and p1_next, p2_next =
+    in
+    let  p1_next, p2_next =
       let t = (f1 *. f2 *. sin qd) /. (l1 *. l2 *. g) ** 2. in
-      p1 -. h *. (t +. m *. l1 *. gravity *. sin q1), p2 +. h *. (t -. m2 *. l2 *. gravity *. sin q2)
+      p1 -. h *. (t +. m *. l1 *. gravity *. sin q1_next), p2 +. h *. (t -. m2 *. l2 *. gravity *. sin q2_next)
     in
     (q1_next, q2_next, p1_next, p2_next)
   in
@@ -48,4 +49,3 @@ let main turn (m1, m2) (l1, l2) gravity h (theta1, theta2, theta_dot1, theta_dot
     else let next = step x in print next; aux (turn - 1) next
   in
   aux turn (q1, q2, p1, p2)
-
