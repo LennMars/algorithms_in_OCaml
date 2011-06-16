@@ -1,7 +1,19 @@
 (* simulate duplex pendulum by symplectic euler method *)
+
+Printf.printf "evaluate 'test_euler n outname' or 'test_symplectic n outname'. n is a step size and outname is an output file name. If you set outname empty string, result appeares in stdout.\n";;
+
 let h = 0.005 (* step size *)
-let (m1, m2) = 1., 0.1 (* weight *)
-let (l1, l2) = 1., 0.1 (* length *)
+let (m1, m2) = 1., 1. (* weight *)
+let (l1, l2) = 1., 1. (* length *)
 let gravity = 9.8 (* gravity acceleration *)
 let x0 = (0., 0.1, 0., 0.) (* init theta1, theta2, speed of theta1, speed of theta2 *)
-let test n = SymplecticEuler.main n (m1, m2) (l1, l2) gravity h x0
+
+let test_euler n outname =
+  let out = if outname = "" then stdout else open_out outname in
+  Euler.main n (m1, m2) (l1, l2) gravity h x0 out;
+  if outname = "" then () else close_out out
+
+let test_symplectic n outname =
+  let out = if outname = "" then stdout else open_out outname in
+  SymplecticEuler.main n (m1, m2) (l1, l2) gravity h x0 out;
+  if outname = "" then () else close_out out

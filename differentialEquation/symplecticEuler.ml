@@ -1,14 +1,51 @@
-let rec newton f f' x tol =
-  if abs_float (f x) < tol then x
-  else newton f f' (x -. f x /. f' x) tol
+open Util
 
-let tol = 0.000000001
+let rec newton f f' x tol =
+  let fx = f x in
+  if abs_float fx < tol then x
+  else newton f f' (x -. fx /. f' x) tol
+
+let tol = 1e-13
 
 let cos2 x = cos x ** 2.
 
-let print (q1, q2, p1, p2) = Printf.printf "%f %f\n" q1 q2
+let to_general_coord (m1, m2) (l1, l2) (th1, th2, thd1, thd2) =
+  let q1, q2 = th1, th2
+  and a11 = (m1 +. m2) *. l1 ** 2.
+  and a12 = m2 *. l1 *. l2 *. cos (th1 -. th2)
+  and a22 = m2 *. l2 ** 2.
+  in
+  let p1 = a11 *. thd1 +. a12 *. thd2
+  and p2 = a12 *. thd1 +. a22 *. thd2
+  in
+  (q1, q2, p1, p2)
 
-let main turn (m1, m2) (l1, l2) gravity h (theta1, theta2, theta_dot1, theta_dot2) =
+let of_general_coord (m1, m2) (l1, l2) (q1, q2, p1, p2) =
+  let th1, th2 = q1, q2 in
+  let thd = th1 -. th2 in
+  let divider = (m2 *. l1 *. l2) ** 2. *. ((m1 +. m2) /. m2 -. cos2 thd)
+  in
+  let b11 = m2 *. l2 ** 2. /. divider
+  and b12 = -1. *. m2 *. l1 *. l2 *. cos thd /. divider
+  and b22 = (m1 +. m2)  *. l1 ** 2. /. divider
+  in
+  let thd1 = b11 *. p1 +. b12 *. p2
+  and thd2 = b12 *. p1 +. b22 *. p2
+  in
+  (th1, th2, thd1, thd2)
+
+let energy (m1, m2) (l1, l2) gravity (th1, th2, thd1, thd2) =
+  let t = 0.5 *. m1 *. (l1 *. thd1) ** 2. +. 0.5 *. m2 *. ((l1 *. thd1) ** 2. +. (l2 *. thd2) ** 2. +. 2. *. l1 *. l2 *. thd1 *. thd2 *. cos (th1 -. th2))
+  and u = -1. *. m1 *. l1 *. gravity *. cos th1 -. m2 *. gravity *. (l1 *. cos l1 +. l2 *. cos l2)
+  in
+  t +. u
+
+let print out_ch m l gravity ((q1, q2, p1, p2) as x) =
+  let energy = energy m l gravity (of_general_coord m l x) in
+  Printf.fprintf out_ch "%f %f %f %f %f\n" q1 q2 p1 p2 energy
+
+let main turn (m1, m2) (l1, l2) gravity h (theta1, theta2, theta_dot1, theta_dot2) out_ch =
+  Printf.fprintf out_ch "# tol_of_newton : %e, weight : (%f, %f) length : (%f, %f) gravity : %f stepsize : %f num_step : %d init : (%f, %f, %f, %f)\n" tol m1 m2 l1 l2 gravity h turn theta1 theta2 theta_dot1 theta_dot2;
   (* calculate sub constants *)
   let m = m1 +. m2 in
   let coef1 = h /. (l1 *. l1)
@@ -19,12 +56,7 @@ let main turn (m1, m2) (l1, l2) gravity h (theta1, theta2, theta_dot1, theta_dot
   and g qd = m -. m2 *. cos2 qd
   in
   (* initialize generalized coordinates *)
-  let (q1, q2) = theta1, theta2 in
-  let a11 = m *. l1 *. l1
-  and a12 = m2 *. l1 *. l2 *. cos (q1 -. q2)
-  and a22 = m2 *. l2 *. l2
-  in
-  let (p1, p2) = a11 *. theta_dot1 +. a12 *. theta_dot2, a12 *. theta_dot1 +. a22 *. theta_dot2 in
+  let (q1, q2, p1, p2) = to_general_coord (m1, m2) (l1, l2) (theta1, theta2, theta_dot1, theta_dot2) in
   (* scheme body *)
   let step ((q1, q2, p1, p2) as x) =
     let kappa = coef1 *. p1 -. coef2 *. p2
@@ -38,7 +70,7 @@ let main turn (m1, m2) (l1, l2) gravity h (theta1, theta2, theta_dot1, theta_dot
     let q1_next = q1 +. h *. f1 /. (l1 *. l1 *. l2 *. g)
     and q2_next = q2 +. h *. f2 /. (m2 *. l1 *. l2 *. l2 *. g)
     in
-    let  p1_next, p2_next =
+    let p1_next, p2_next =
       let t = (f1 *. f2 *. sin qd) /. (l1 *. l2 *. g) ** 2. in
       p1 -. h *. (t +. m *. l1 *. gravity *. sin q1_next), p2 +. h *. (t -. m2 *. l2 *. gravity *. sin q2_next)
     in
@@ -46,6 +78,10 @@ let main turn (m1, m2) (l1, l2) gravity h (theta1, theta2, theta_dot1, theta_dot
   in
   let rec aux turn x =
     if turn <= 0 then ()
-    else let next = step x in print next; aux (turn - 1) next
+    else
+      let next = step x in
+      (* let get_p1 (_, _, p1, _) = p1 in *)
+      if true (* (get_p1 next |> abs_float) < 0.01 *) then print out_ch (m1, m2) (l1, l2) gravity next;
+      aux (turn - 1) next
   in
   aux turn (q1, q2, p1, p2)

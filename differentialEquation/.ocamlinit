@@ -1,4 +1,5 @@
 #directory "../util";;
 #load "../util/util.cma";;
+#load "./euler.cmo";;
 #load "./symplecticEuler.cmo";;
 #use "./test.ml";;

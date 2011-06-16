@@ -4,10 +4,12 @@ graph/ubigraphtop
 *.run
 *.opt
 *.annot
-*.cmi
-*.cmo
-*.cma
+*.cm[ioa]
+*.log
 *.o
+*.a
+*.cmx
+*.cmxa
 *.out
 *.omakedb
 *.omakedb.lock
