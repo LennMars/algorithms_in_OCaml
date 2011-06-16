@@ -40,9 +40,15 @@ let energy (m1, m2) (l1, l2) gravity (th1, th2, thd1, thd2) =
   in
   t +. u
 
+let rec normalize theta =
+  if abs_float theta < pi then theta
+  else if theta > 0. then normalize (theta -. 2. *. pi)
+  else normalize (theta +. 2. *. pi)
+
 let print out_ch m l gravity ((q1, q2, p1, p2) as x) =
-  let energy = energy m l gravity (of_general_coord m l x) in
-  Printf.fprintf out_ch "%f %f %f %f %f\n" q1 q2 p1 p2 energy
+  let (th1, th2, thd1, thd2) as c = of_general_coord m l x in
+  let energy = energy m l gravity c in
+  if abs_float thd1 < 0.1 then Printf.fprintf out_ch "%f %f %f %f %f\n" (normalize th1) (normalize th2) thd1 thd2 energy
 
 let main turn (m1, m2) (l1, l2) gravity h (theta1, theta2, theta_dot1, theta_dot2) out_ch =
   Printf.fprintf out_ch "# tol_of_newton : %e, weight : (%f, %f) length : (%f, %f) gravity : %f stepsize : %f num_step : %d init : (%f, %f, %f, %f)\n" tol m1 m2 l1 l2 gravity h turn theta1 theta2 theta_dot1 theta_dot2;
@@ -80,8 +86,7 @@ let main turn (m1, m2) (l1, l2) gravity h (theta1, theta2, theta_dot1, theta_dot
     if turn <= 0 then ()
     else
       let next = step x in
-      (* let get_p1 (_, _, p1, _) = p1 in *)
-      if true (* (get_p1 next |> abs_float) < 0.01 *) then print out_ch (m1, m2) (l1, l2) gravity next;
+      print out_ch (m1, m2) (l1, l2) gravity next;
       aux (turn - 1) next
   in
   aux turn (q1, q2, p1, p2)
