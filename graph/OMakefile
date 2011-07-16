@@ -2,11 +2,11 @@
 # You can obtain the custom ocaml toplevel named "ubigraphtop", which enables interactive graph visualization with UbiGraph, by `omake mktop`. Before running ubigraphtop you should launch UbiGraph server. test.ml will be not compiled by omake but loaded in ubigraphtop automaticaly(see .ocamlinit).
 
 FILES[] =
-  Ubigraph
   graph
-  draw
+#  Ubigraph
+#  draw
 
-OCAMLPACKS[] = xmlrpc-light
+#OCAMLPACKS[] = xmlrpc-light
 
 LIB = graph
 
@@ -16,5 +16,5 @@ LIB = graph
 clean:
   rm -f \
      $(filter-proper-targets $(glob $(addsuffix .*, $(FILES))))
-mktop:
-  ocamlfind ocamlmktop -I ../util -o ubigraphtop -package xmlrpc-light,findlib -linkpkg -custom util.cmo Ubigraph.cmo graph.cmo draw.cmo
+#mktop:
+#  ocamlfind ocamlmktop -I ../util -o ubigraphtop -package xmlrpc-light,findlib -linkpkg -custom util.cmo Ubigraph.cmo graph.cmo draw.cmo

@@ -13,5 +13,5 @@ DirectedGraph.add (1, 2) "b" g2;;
 
 DirectedGraph.unite g1 g2;;
 
-module D = Draw.Make(DirectedGraph);;
-D.draw identity g2
+(* module D = Draw.Make(DirectedGraph);;
+D.draw identity g2 *)
