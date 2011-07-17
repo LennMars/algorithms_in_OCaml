@@ -1,4 +1,5 @@
-#directory "../util";;
-#load "../util/utils.cma";;
-#load "main.cmo";;
-#use "./test.ml";;
+#load "bigarray.cma"
+#directory "../util"
+#load "util.cma"
+#load "main.cmo"
+#use "./test.ml"

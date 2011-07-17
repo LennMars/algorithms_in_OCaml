@@ -4,6 +4,8 @@ FILES[] =
   main
   test
 
+OCAML_OTHER_LIBS += bigarray
+
 OCamlProgram($(PROGRAM), $(FILES))
 
 .DEFAULT: $(if $(BYTE_ENABLED), $(PROGRAM).run) \
