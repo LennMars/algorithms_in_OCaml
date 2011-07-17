@@ -94,25 +94,17 @@ let remove cond =
   in
   remove_aux []
 
-let find_max_with comp f = function
+let find_max ?(comp = Pervasives.compare) f = function
     [] -> raise (Invalid_argument "find_max_with")
   | hd :: tl -> List.fold_left (fun x y -> if comp (f x) (f y) > 0 then x else y) hd tl
 
-let find_min_with comp = find_max_with (swap_arg comp)
+let find_min ?(comp = Pervasives.compare) = find_max ~comp:(swap_arg comp)
 
-let find_max_val_with comp f = function
+let find_max_val ?(comp = Pervasives.compare) f = function
     [] -> raise (Invalid_argument "find_max_val_with")
   | hd :: tl -> List.fold_left (fun x y -> let fy = f y in if comp x fy > 0 then x else fy) (f hd) tl
 
-let find_min_val_with comp = find_max_val_with (swap_arg comp)
-
-let find_max f = find_max_with compare f
-
-let find_min f = find_min_with compare f
-
-let find_max_val f = find_max_val_with compare f
-
-let find_min_val f = find_min_val_with compare f
+let find_min_val ?(comp = Pervasives.compare) = find_max_val ~comp:(swap_arg comp)
 
 let mapi f =
   let rec mapi_aux f accum n = function

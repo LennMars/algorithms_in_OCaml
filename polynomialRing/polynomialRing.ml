@@ -54,7 +54,7 @@ end = struct
   let total_degree f =
     let deg (a, x) = if a =^ F.zero then 0 else degree x in
     List.find_max_val deg f
-  let lterm mo f = List.find_min_with mo snd f
+  let lterm mo f = List.find_min ~comp:mo snd f
   let is_divider x y = Array.for_all2 (<=) x y
   let is_lterm_divider mo g f = is_divider (lterm mo g |> snd) (lterm mo f |> snd)
   let rec lex vo x y =

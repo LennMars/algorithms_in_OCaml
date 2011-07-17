@@ -24,6 +24,29 @@ let swap i j xs =
   xs.(j) <- xs.(i);
   xs.(i) <- elm_j
 
+let find_max ?(comp = Pervasives.compare) f xs =
+  if Array.length xs = 0 then
+    raise (Invalid_argument "find_max")
+  else
+    Array.fold_left (fun x y -> if comp (f x) (f y) > 0 then x else y) xs.(0) xs
+
+let find_min ?(comp = Pervasives.compare) =
+  find_max ~comp:(swap_arg comp)
+
+let find_max_num ?(comp = Pervasives.compare) f xs =
+  if Array.length xs = 0 then
+    raise (Invalid_argument "find_max_num")
+  else
+    let max_i = ref 0
+    and max = ref xs.(0)
+    and fmax = ref (f xs.(0))
+    in
+    let _ = Array.iteri (fun i x -> if comp !fmax (f x) > 0 then (max_i := i; max := x; fmax := f x) else ()) xs in
+    !max_i
+
+let find_min_num ?(comp = Pervasives.compare) = find_max_num ~comp:(swap_arg comp)
+
+
 (* For loop escapement. *)
 exception Found of int option
 
@@ -81,3 +104,27 @@ let permutate order xs =
     | hd :: tl -> a.(m) <- xs.(hd); permutate_aux (m + 1) tl
   in
   permutate_aux 0 order
+
+let count p xs = Array.fold_left (fun n x -> if p x then n + 1 else n) 0 xs
+
+let filter_some xs =
+  Array.to_list xs |> UtilList.filter_some |> Array.of_list
+
+let select_rand n xs =
+  let m = Array.length xs - n in
+  if n < 0 || m < 0 then raise (Invalid_argument "select_rand");
+  let xs = Array.map (fun x -> Some x) xs in
+  let rec aux k =
+    if k >= m then
+      filter_some xs
+    else
+      let to_delete = Random.int (Array.length xs - k) in
+      let rec aux2 i j =
+	match xs.(j) with
+	  Some _ -> if i = to_delete then xs.(j) <- None else aux2 (i + 1) (j + 1)
+	| None -> aux2 i (j + 1)
+      in
+      aux2 0 0;
+      aux (k + 1)
+  in
+  aux 0

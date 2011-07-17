@@ -19,6 +19,7 @@ val general_exp : 'a -> ('a -> 'a -> 'a) -> 'a -> int -> 'a
 val int_exp : int -> int -> int
 val minimum_bigger_power_of_two : int -> int
 val string_of_option : ('a -> string) -> 'a option -> string
+val box_muller : unit -> float * float
 module IntSet :
   sig
     type elt = int

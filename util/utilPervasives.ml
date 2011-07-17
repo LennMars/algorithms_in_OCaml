@@ -74,6 +74,11 @@ let string_of_option to_string = function
     None -> "None"
   | Some x -> to_string x
 
+let box_muller () =
+  let rand () = 1. -. Random.float 1. in
+  let (a, b) = rand (),  rand () in
+  sqrt (-2. *. log a) *. sin (2. *. pi *. b),
+  sqrt (-2. *. log b) *. sin (2. *. pi *. a)
 
 module Int = struct type t = int let compare = compare end
 module IntSet' = Set.Make (Int)

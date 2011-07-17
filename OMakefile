@@ -9,4 +9,4 @@ OCAMLFINDFLAGS +=
 OCAMLINCLUDES += ../util
 OCAML_LIBS[] = ../util/util
 
-.SUBDIRS:algebra differentialEquation machineLearning polynomialRing matrix rational geometry timer_test dijkstra DFT tree ford-fulkerson kruskal eratosthenes knapsack sort util graph
+.SUBDIRS:clustering algebra differentialEquation machineLearning polynomialRing matrix rational geometry timer_test dijkstra DFT tree ford-fulkerson kruskal eratosthenes knapsack sort util graph
