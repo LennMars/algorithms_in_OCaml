@@ -9,6 +9,8 @@ val map2 : ('a -> 'b -> 'c) -> 'a array -> 'b array -> 'c array
 (** Swap two elements at the designated locations. destructive. *)
 val swap : int -> int -> 'a array -> unit
 
+val swap_region : int -> int -> int -> int -> 'a array -> unit
+
 val find_max : ?comp:('b -> 'b -> int) -> ('a -> 'b) -> 'a array -> 'a
 
 val find_min : ?comp:('b -> 'b -> int) -> ('a -> 'b) -> 'a array -> 'a

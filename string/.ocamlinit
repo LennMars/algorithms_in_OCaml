@@ -1,0 +1,5 @@
+#directory "../util";;
+#load "util.cma";;
+#load "fpiSummerIntern2011Quiz.cmo"
+#load "suffixArray.cmo"
+#use "./test.ml"

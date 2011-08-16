@@ -1,0 +1,19 @@
+PROGRAM = camlprog
+
+FILES[] =
+  fpiSummerIntern2011Quiz
+  suffixArray
+  test
+
+OCAML_OTHER_LIBS +=
+
+OCamlProgram($(PROGRAM), $(FILES))
+
+.DEFAULT: $(if $(BYTE_ENABLED), $(PROGRAM).run) \
+          $(if $(NATIVE_ENABLED), $(PROGRAM).opt)
+
+.PHONY: clean
+clean:
+  rm -f \
+     $(filter-proper-targets $(glob $(addsuffix .*, $(FILES)))) \
+     $(PROGRAM).run $(PROGRAM).opt

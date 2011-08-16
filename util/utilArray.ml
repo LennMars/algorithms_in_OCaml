@@ -24,6 +24,19 @@ let swap i j xs =
   xs.(j) <- xs.(i);
   xs.(i) <- elm_j
 
+let rec swap_region s1 len1 s2 len2 xs =
+  if s1 > s2 then
+    swap_region s2 len2 s1 len1 xs
+  else if s1 < 0 || s2 + len2 > Array.length xs || s1 + len1 > s2 then
+    invalid_arg "swap_region"
+  else
+    let left = Array.sub xs s1 len1
+    and center = Array.sub xs (s1 + len1) (s2 - s1 - len1)
+    in
+    Array.blit xs s2 xs s1 len2;
+    Array.blit center 0 xs (s1 + len2) (s2 - s1 - len1);
+    Array.blit left 0 xs (s2 - len1 + len2) len1
+
 let find_max ?(comp = Pervasives.compare) f xs =
   if Array.length xs = 0 then
     raise (Invalid_argument "find_max")
