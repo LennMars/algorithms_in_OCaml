@@ -5,7 +5,7 @@ FILES[] =
   suffixArray
   test
 
-OCAML_OTHER_LIBS +=
+OCAML_OTHER_LIBS += unix
 
 OCamlProgram($(PROGRAM), $(FILES))
 
