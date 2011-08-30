@@ -45,21 +45,21 @@ let rec bisection f a b =
   else if is_same_sign fa (f c) then bisection f c b
   else bisection f a c
 
+let is_even_list x =
+  if x < 0 then invalid_arg "is_even_list";
+  let rec aux x accum =
+    if x = 0 then accum
+    else if (x mod 2 = 0) then aux (x lsr 1) (true::accum)
+    else aux (x lsr 1) (false::accum)
+  in
+  aux x []
+
 let general_exp one mul x y =
-  if y < 0 then failwith "y must be positive";
-  let is_even_list =
-    let rec is_even_list_ y accum =
-      if y = 0 then accum
-      else if (y mod 2 = 0) then is_even_list_ (y lsr 1) (true::accum)
-      else is_even_list_ (y lsr 1) (false::accum)
-    in
-    is_even_list_ y []
-  in
-  let  rec int_exp_aux x is_even_list accum = match is_even_list with
+  let rec aux accum = function
       [] -> accum
-    | hd :: tl -> int_exp_aux x tl (mul (mul accum accum) (if hd then one else x))
+    | hd :: tl -> aux (mul (mul accum accum) (if hd then one else x)) tl
   in
-  int_exp_aux x is_even_list one
+  aux one (is_even_list y)
 
 let int_exp = general_exp 1 ( * )
 

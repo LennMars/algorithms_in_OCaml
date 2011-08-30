@@ -39,3 +39,9 @@ val random_permutation : int -> int list
 val remove_adjacent : 'a list -> 'a list
 val remove_adjacent_tuple : int -> 'a list -> 'a list
 val n_divide : int -> int -> int list list
+
+(** ex. combination 4 2 returns [1001; 0101; 0011; 1010; 0110; 1100] (in binary). *)
+val combination : int -> int -> int list
+
+(** If x appeared earlier than y in the list and f x = f y then y is removed. The order of the list is not preserved. *)
+val remove_duplicated : ('a -> 'b) -> 'a list -> 'a list

@@ -15,6 +15,7 @@ val pi : float
 val iter : int -> ('a -> 'b) -> 'a -> unit
 val time : (unit -> float) -> int -> ('a -> 'b) -> 'a -> float
 val bisection : (float -> float) -> float -> float -> float
+val is_even_list : int -> bool list
 val general_exp : 'a -> ('a -> 'a -> 'a) -> 'a -> int -> 'a
 val int_exp : int -> int -> int
 val minimum_bigger_power_of_two : int -> int

@@ -257,3 +257,22 @@ let n_divide n k =
       aux2 n k (n - 1) []
   in
   aux n k
+
+let combination n m =
+  let g (k, r) = init (fun i -> k + int_exp 2 (n - i - 1), i) r in
+  let rec aux m xs =
+    if m = 1 then
+      map fst xs
+    else
+      aux (m - 1) (map g xs |> List.concat)
+  in
+  aux m (init (fun i -> int_exp 2 i, n - i - 1) n);;
+
+let remove_duplicated f =
+  let rec aux acc = function
+      [] -> acc
+    | x :: xs ->
+	if List.exists ((=) (f x)) (map f acc) then aux acc xs
+	else aux (x :: acc) xs
+  in
+  aux []
