@@ -7,10 +7,17 @@ let iteri f xs =
   in
   aux 0 xs
 
-let sub n len xs =
-  let xs = Array.of_list xs in
-  try Array.sub xs n len |> Array.to_list with
-    Invalid_argument _ -> raise (Invalid_argument "List.sub")
+let sub start len xs =
+  try
+    let rec skip i xs =
+      if i = start then xs
+      else skip (i + 1) (List.tl xs)
+    and drop j acc xs =
+      if j = len then List.rev acc
+      else drop (j + 1) (List.hd xs :: acc) (List.tl xs)
+    in
+    skip 0 xs |> drop 0 []
+  with Failure "tl" -> invalid_arg "sub"
 
 let take n xs =
   let rec aux n xs accum =
