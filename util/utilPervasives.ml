@@ -1,8 +1,10 @@
-let identity x = x
+external identity : 'a -> 'a = "%identity"
 
 let (|>) f x = x f
 
 let (<|) f x = f x
+
+let ($) f g x = f (g x)
 
 let swap (a, b) = (b, a)
 
@@ -17,6 +19,11 @@ let incr x = x := !x + 1
 let triple1 (x, _, _) = x
 let triple2 (_, x, _) = x
 let triple3 (_, _, x) = x
+
+let quad1 (x, _, _, _) = x
+let quad2 (_, x, _, _) = x
+let quad3 (_, _, x, _) = x
+let quad4 (_, _, _, x) = x
 
 let pi = atan 1. *. 4.
 
@@ -64,11 +71,12 @@ let general_exp one mul x y =
 let int_exp = general_exp 1 ( * )
 
 let minimum_bigger_power_of_two n =
-  let rec aux accum = function
-      0 -> accum
-    | m -> aux (accum + 1) (m lsr 1)
-  in
-  aux 0 (n-1)
+  if n = 0 then -1 else
+    let rec aux accum = function
+        0 -> accum
+      | m -> aux (accum + 1) (m lsr 1)
+    in
+    aux 0 (n-1)
 
 let string_of_option to_string = function
     None -> "None"
@@ -120,6 +128,7 @@ module Stack2 : sig
   val length : 'a t -> int
   val push : 'a -> 'a t -> 'a t
   val pop : 'a t -> 'a * 'a t
+  val remove : 'a t -> 'a t
   val peek : 'a t -> 'a
 end = struct
   type 'a t = 'a list
@@ -132,6 +141,9 @@ end = struct
   let pop = function
       [] -> raise Empty
     | hd :: tl -> (hd, tl)
+  let remove = function
+      [] -> raise Empty
+    | hd :: tl -> tl
   let peek = function
       [] -> raise Empty
     | hd :: tl -> hd

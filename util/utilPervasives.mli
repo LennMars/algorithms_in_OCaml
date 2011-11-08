@@ -3,6 +3,7 @@
 val identity : 'a -> 'a
 val ( |> ) : 'a -> ('a -> 'b) -> 'b
 val ( <| ) : ('a -> 'b) -> 'a -> 'b
+val ( $ ) : ('a -> 'b) -> ('c -> 'a) -> 'c -> 'b
 val swap : 'a * 'b -> 'b * 'a
 val swap_arg : ('a -> 'b -> 'c) -> 'b -> 'a -> 'c
 val maxf : ('a -> 'b) -> 'a -> 'a -> 'b
@@ -11,6 +12,10 @@ val incr : int ref -> unit
 val triple1 : 'a * 'b * 'c -> 'a
 val triple2 : 'a * 'b * 'c -> 'b
 val triple3 : 'a * 'b * 'c -> 'c
+val quad1 : 'a * 'b * 'c * 'd -> 'a
+val quad2 : 'a * 'b * 'c * 'd -> 'b
+val quad3 : 'a * 'b * 'c * 'd -> 'c
+val quad4 : 'a * 'b * 'c * 'd -> 'd
 val pi : float
 val iter : int -> ('a -> 'b) -> 'a -> unit
 val time : (unit -> float) -> int -> ('a -> 'b) -> 'a -> float
@@ -76,6 +81,7 @@ module Stack2 :
     val length : 'a t -> int
     val push : 'a -> 'a t -> 'a t
     val pop : 'a t -> 'a * 'a t
+    val remove : 'a t -> 'a t
     val peek : 'a t -> 'a
   end
 module LazyList :

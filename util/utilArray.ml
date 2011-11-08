@@ -106,7 +106,17 @@ let for_all2 cond xs ys =
     in
     !p
 
-let exists cond xs = Array.fold_left (fun p x -> p || cond x) false xs
+(* let exists cond xs = Array.fold_left (fun p x -> p || cond x) false xs *)
+
+exception Found
+
+let exists cond xs =
+  try
+    for i = 0 to Array.length xs - 1 do
+      if cond xs.(i) then raise Found
+    done;
+    false
+  with Found -> true
 
 let permutate order xs =
   let n = Array.length xs in

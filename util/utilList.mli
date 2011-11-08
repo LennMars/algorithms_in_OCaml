@@ -4,6 +4,7 @@ val iteri : (int -> 'a -> unit) -> 'a list -> unit
 val sub : int -> int -> 'a list -> 'a list
 val take : int -> 'a list -> 'a list
 val drop : int -> 'a list -> 'a list
+val split_at : int -> 'a list -> 'a list * 'a list
 val drop_while : ('a -> bool) -> 'a list -> 'a list
 val delete_nth : int -> 'a list -> 'a list
 val delete_nth_naive : int -> 'a list -> 'a list

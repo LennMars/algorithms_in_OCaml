@@ -30,6 +30,13 @@ let rec drop n xs =
   if n <= 0 || xs = [] then xs
   else drop (n - 1) (List.tl xs)
 
+let rec split_at n xs =
+  let rec aux n xs acc =
+    if n <= 0 || xs = [] then List.rev acc, xs
+    else aux (n - 1) (List.tl xs) (List.hd xs :: acc)
+  in
+  aux n xs []
+
 let rec drop_while p xs =
   if xs = [] then []
   else if p (List.hd xs) then drop_while p (List.tl xs)
@@ -191,8 +198,9 @@ let range a b inc =
     else aux a (b - inc) inc (b :: accum)
   in
   if inc = 0 then raise (Invalid_argument "range : increment must be positive.")
-  else if inc > 0 then aux a (b - (b - a) mod inc) inc []
-  else aux b a (-inc) [] |> List.rev
+  else if inc > 0 && a <= b then aux a (b - (b - a) mod inc) inc []
+  else if inc < 0 && a >= b then aux b a (-inc) [] |> List.rev
+  else []
 
 let take_ns ns lst =
   let rec take_ns_aux ns lst l accum =
