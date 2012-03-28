@@ -11,6 +11,8 @@ graph/ubigraphtop
 *.cmx
 *.cmxa
 *.out
+*.cmt
+*.cmti
 *.omakedb
 *.omakedb.lock
 util/META
