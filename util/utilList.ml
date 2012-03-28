@@ -108,9 +108,15 @@ let remove cond =
   in
   remove_aux []
 
-let find_max ?(comp = Pervasives.compare) f = function
-    [] -> raise (Invalid_argument "find_max_with")
-  | hd :: tl -> List.fold_left (fun x y -> if comp (f x) (f y) > 0 then x else y) hd tl
+let find_max ?(comp = Pervasives.compare) f xs =
+  let rec aux (max, max_val) = function
+    | [] -> max
+    | l :: r ->
+      let y = f l in
+      aux (if comp y max_val > 0 then l, y else max, max_val) r in
+  match xs with
+    | [] -> raise (Invalid_argument "find_max")
+    | l :: r -> aux (l, f l) r
 
 let find_min ?(comp = Pervasives.compare) = find_max ~comp:(swap_arg comp)
 
@@ -131,13 +137,13 @@ let count cond xs = List.filter cond xs |> List.length
 
 let rev_flatten xs =
   let rec rev_flatten_aux accum = function
-      [] -> accum
+    | [] -> accum
     | hd :: tl ->
-	let rec rev_flatten_deep accum = function
-	    [] -> accum
-	  | hd :: tl -> rev_flatten_deep (hd :: accum) tl
-	in
-	rev_flatten_aux (rev_flatten_deep accum hd) tl
+      let rec rev_flatten_deep accum = function
+        | [] -> accum
+        | hd :: tl -> rev_flatten_deep (hd :: accum) tl
+      in
+      rev_flatten_aux (rev_flatten_deep accum hd) tl
   in
   rev_flatten_aux [] xs
 
@@ -173,8 +179,8 @@ let average_first n lst =
   let rec sum_first n accum lst=
     if n = 0 then accum else
       match lst with
-	[] -> failwith "ave"
-      | hd :: tl -> sum_first (n - 1) (hd +. accum) tl
+        | [] -> failwith "ave"
+        | hd :: tl -> sum_first (n - 1) (hd +. accum) tl
   in
   (sum_first n 0. lst) /. float n
 
@@ -183,12 +189,12 @@ let average lst =
 
 let split_while f lst =
   let rec split_while_aux f accum_fst accum_snd = function
-      [] -> (List.rev accum_fst, accum_snd)
-    |hd :: tl ->
-       if f hd then
-	 split_while_aux f (hd :: accum_fst) tl tl
-       else
-	 (List.rev accum_fst, accum_snd)
+    | [] -> (List.rev accum_fst, accum_snd)
+    | hd :: tl ->
+      if f hd then
+        split_while_aux f (hd :: accum_fst) tl tl
+      else
+	(List.rev accum_fst, accum_snd)
   in
   split_while_aux f [] lst lst
 
@@ -223,14 +229,14 @@ let random_permutation n =
   aux [] IntSet.empty n
 
 let remove_adjacent = function
-    [] -> []
+  | [] -> []
   | hd :: tl ->
-      let rec aux pred accum xs =
-	match xs with
-	  [] -> List.rev accum
-	| hd :: tl -> if hd = pred then aux pred accum tl else aux hd (hd :: accum) tl
-      in
-      aux hd [hd] tl
+    let rec aux pred accum xs =
+      match xs with
+        | [] -> List.rev accum
+        | hd :: tl -> if hd = pred then aux pred accum tl else aux hd (hd :: accum) tl
+    in
+    aux hd [hd] tl
 
 let remove_adjacent_tuple m xs =
   let rec remove pattern xs = (* Some : succeed to remove, None : failed to remove *)
@@ -285,9 +291,26 @@ let combination n m =
 
 let remove_duplicated f =
   let rec aux acc = function
-      [] -> acc
+    | [] -> acc
     | x :: xs ->
-	if List.exists ((=) (f x)) (map f acc) then aux acc xs
-	else aux (x :: acc) xs
-  in
+      if List.exists ((=) (f x)) (map f acc) then aux acc xs
+      else aux (x :: acc) xs in
   aux []
+
+let remove_duplicated xs =
+  let open Hashtbl in
+  let table = create 100 in
+  List.iter (fun x -> replace table x ()) xs;
+  fold (fun x () acc -> x :: acc) table []
+
+let tuplize xs ys =
+  List.map (fun x -> List.map (fun y -> (x, y)) ys) xs |> List.flatten
+
+let pack ?(comp = Pervasives.compare) xs =
+  let rec aux last count acc = function
+    | [] -> (last, count) :: acc
+    | l :: r when comp last l = 0 -> aux last (count + 1) acc r
+    | l :: r -> aux l 1 ((last, count) :: acc) r in
+  match List.sort comp xs with
+    | [] -> []
+    | l :: r -> aux l 1 [] r

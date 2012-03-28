@@ -45,4 +45,6 @@ val n_divide : int -> int -> int list list
 val combination : int -> int -> int list
 
 (** If x appeared earlier than y in the list and f x = f y then y is removed. The order of the list is not preserved. *)
-val remove_duplicated : ('a -> 'b) -> 'a list -> 'a list
+val remove_duplicated : 'a list -> 'a list
+val tuplize : 'a list -> 'b list -> ('a * 'b) list
+val pack : ?comp:('a -> 'a -> int) -> 'a list -> ('a * int) list
