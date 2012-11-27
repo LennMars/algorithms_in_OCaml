@@ -52,9 +52,16 @@ let find_max_num ?(comp = Pervasives.compare) f xs =
   else
     let max_i = ref 0
     and max = ref xs.(0)
-    and fmax = ref (f xs.(0))
-    in
-    let _ = Array.iteri (fun i x -> if comp !fmax (f x) > 0 then (max_i := i; max := x; fmax := f x) else ()) xs in
+    and fmax = ref (f xs.(0)) in
+    let test i x =
+      let fx = f x in
+      if comp fx !fmax > 0 then begin
+        max_i := i;
+        max := x;
+        fmax := fx end
+      else
+        () in
+    Array.iteri test xs;
     !max_i
 
 let find_min_num ?(comp = Pervasives.compare) = find_max_num ~comp:(swap_arg comp)
