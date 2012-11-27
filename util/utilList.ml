@@ -17,7 +17,7 @@ let sub start len xs =
       else drop (j + 1) (List.hd xs :: acc) (List.tl xs)
     in
     skip 0 xs |> drop 0 []
-  with Failure "tl" -> invalid_arg "sub"
+  with Failure "tl" -> invalid_arg "Util.List.sub"
 
 let take n xs =
   let rec aux n xs accum =
@@ -62,7 +62,7 @@ let rec drop_while p xs =
 
 let delete_nth n xs =
   if n < 0 then
-    raise (Invalid_argument "delete_nth")
+    raise (Invalid_argument "Util.List.delete_nth")
   else if n = 0 then
     List.tl xs
   else if n = 1 then
@@ -72,7 +72,7 @@ let delete_nth n xs =
     let rec aux n xsr_orig xsr =
       let tl = xsr |> tl_field |> tl_field in
       if n > 0 && Obj.obj tl = 0 then
-	raise (Invalid_argument "delete_nth")
+	raise (Invalid_argument "Util.List.delete_nth")
       else if n = 0 then let _ = begin
 	if Obj.obj tl = 0 then
 	  Obj.set_field xsr 1 (Obj.repr 0)
@@ -94,7 +94,7 @@ let delete_nth_naive n xs =
 let is_empty xs = List.length xs = 0
 
 let single xs = if List.length xs = 1 then List.hd xs else
-  raise (Invalid_argument "The length of the list must be 1.")
+  raise (Invalid_argument "Util.List.single: The length of the list must be 1.")
 
 let last xs = List.nth xs (List.length xs - 1)
 
@@ -102,14 +102,14 @@ let to_chain = function (* ex. [1;2;3] -> [(1, 2); (2, 3)]*)
     [] | [_] -> []
   | hd :: tl ->
       let rec to_chain_aux accum = function
-	  [] -> failwith "to_chain : fatal error."
+	  [] -> failwith "Util.List.to_chain : fatal error."
 	| [last] -> List.rev accum
 	| hd :: tl -> to_chain_aux ((hd, List.hd tl) :: accum) tl
       in
       to_chain_aux [hd, List.hd tl] tl
 
 let filter_some xs = List.filter (fun x -> match x with Some _ -> true | None -> false) xs
-  |> List.map (fun x -> match x with Some y -> y | None -> failwith "fatal error")
+  |> List.map (function Some y -> y | None -> failwith "Util.List.filter_some: fatal error")
 
 let rec print_int_list = function
     [] -> Printf.printf "\n"
@@ -133,13 +133,13 @@ let find_max ?(comp = Pervasives.compare) f xs =
       let y = f l in
       aux (if comp y max_val > 0 then l, y else max, max_val) r in
   match xs with
-    | [] -> raise (Invalid_argument "find_max")
+    | [] -> raise (Invalid_argument "Util.List.find_max")
     | l :: r -> aux (l, f l) r
 
 let find_min ?(comp = Pervasives.compare) = find_max ~comp:(swap_arg comp)
 
 let find_max_val ?(comp = Pervasives.compare) f = function
-    [] -> raise (Invalid_argument "find_max_val_with")
+    [] -> invalid_arg "Util.List.find_max_val_with"
   | hd :: tl -> List.fold_left (fun x y -> let fy = f y in if comp x fy > 0 then x else fy) (f hd) tl
 
 let find_min_val ?(comp = Pervasives.compare) = find_max_val ~comp:(swap_arg comp)
@@ -197,7 +197,7 @@ let average_first n lst =
   let rec sum_first n accum lst=
     if n = 0 then accum else
       match lst with
-        | [] -> failwith "ave"
+        | [] -> invalid_arg "Util.List.average_first"
         | hd :: tl -> sum_first (n - 1) (hd +. accum) tl
   in
   (sum_first n 0. lst) /. float n
@@ -221,7 +221,7 @@ let range a b inc =
     if a > b then accum
     else aux a (b - inc) inc (b :: accum)
   in
-  if inc = 0 then raise (Invalid_argument "range : increment must be positive.")
+  if inc = 0 then raise (Invalid_argument "Util.List.range : increment must be positive.")
   else if inc > 0 && a <= b then aux a (b - (b - a) mod inc) inc []
   else if inc < 0 && a >= b then aux b a (-inc) [] |> List.rev
   else []
@@ -282,7 +282,7 @@ let remove_adjacent_tuple m xs =
   aux (take m xs) (drop m xs) (take m xs |> List.rev)
 
 let n_divide n k =
-  if n <= 0 || k <= 0 then raise (Invalid_argument "n_divide");
+  if n <= 0 || k <= 0 then raise (Invalid_argument "Util.List.n_divide");
   let rec aux n k =
     if k = 1 then
       [[n]]
