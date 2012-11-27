@@ -26,6 +26,24 @@ let take n xs =
   in
   aux n xs []
 
+let take_option n_option xs =
+  let rec aux n xs acc =
+    if n <= 0 then List.rev acc
+    else match xs with
+      | [] -> List.rev acc
+      | l :: r -> aux (n - 1) r (l :: acc) in
+  match n_option with
+    | None -> xs
+    | Some n -> aux n xs []
+
+let rec take_even_aux acc is_even = function
+  | [] -> List.rev acc
+  | l :: r -> take_even_aux (if is_even then (l :: acc) else acc) (not is_even) r
+
+let take_even xs = take_even_aux [] true xs
+
+let take_odd xs = take_even_aux [] false xs
+
 let rec drop n xs =
   if n <= 0 || xs = [] then xs
   else drop (n - 1) (List.tl xs)
