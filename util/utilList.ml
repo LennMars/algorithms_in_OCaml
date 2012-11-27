@@ -2,7 +2,7 @@ open UtilPervasives
 
 let iteri f xs =
   let rec aux n = function
-      [] -> ()
+    | [] -> ()
     | hd :: tl -> f n hd; aux (n + 1) tl
   in
   aux 0 xs
@@ -72,12 +72,12 @@ let delete_nth n xs =
     let rec aux n xsr_orig xsr =
       let tl = xsr |> tl_field |> tl_field in
       if n > 0 && Obj.obj tl = 0 then
-	raise (Invalid_argument "Util.List.delete_nth")
+        raise (Invalid_argument "Util.List.delete_nth")
       else if n = 0 then let _ = begin
-	if Obj.obj tl = 0 then
-	  Obj.set_field xsr 1 (Obj.repr 0)
-	else
-	  Obj.set_field xsr 1 tl
+        if Obj.obj tl = 0 then
+          Obj.set_field xsr 1 (Obj.repr 0)
+        else
+          Obj.set_field xsr 1 tl
       end in Obj.obj xsr_orig
       else aux (n - 1) xsr_orig (Obj.field xsr 1)
     in
@@ -90,7 +90,6 @@ let delete_nth_naive n xs =
   in
   aux n xs []
 
-
 let is_empty xs = List.length xs = 0
 
 let single xs = if List.length xs = 1 then List.hd xs else
@@ -102,9 +101,9 @@ let to_chain = function (* ex. [1;2;3] -> [(1, 2); (2, 3)]*)
     [] | [_] -> []
   | hd :: tl ->
       let rec to_chain_aux accum = function
-	  [] -> failwith "Util.List.to_chain : fatal error."
-	| [last] -> List.rev accum
-	| hd :: tl -> to_chain_aux ((hd, List.hd tl) :: accum) tl
+        | [] -> failwith "Util.List.to_chain : fatal error."
+        | [last] -> List.rev accum
+        | hd :: tl -> to_chain_aux ((hd, List.hd tl) :: accum) tl
       in
       to_chain_aux [hd, List.hd tl] tl
 
@@ -112,16 +111,16 @@ let filter_some xs = List.filter (fun x -> match x with Some _ -> true | None ->
   |> List.map (function Some y -> y | None -> failwith "Util.List.filter_some: fatal error")
 
 let rec print_int_list = function
-    [] -> Printf.printf "\n"
+  | [] -> Printf.printf "\n"
   | hd :: tl -> Printf.printf "%d " hd; print_int_list tl
 
 let rec print_float_list = function
-    [] -> Printf.printf "\n"
+  | [] -> Printf.printf "\n"
   | hd :: tl -> Printf.printf "%d " hd; print_float_list tl
 
 let remove cond =
   let rec remove_aux accum = function
-      [] -> List.rev accum (* unfound *)
+    | [] -> List.rev accum (* unfound *)
     | hd :: tl -> if cond hd then List.rev accum @ tl else remove_aux (hd :: accum) tl
   in
   remove_aux []
@@ -139,14 +138,14 @@ let find_max ?(comp = Pervasives.compare) f xs =
 let find_min ?(comp = Pervasives.compare) = find_max ~comp:(swap_arg comp)
 
 let find_max_val ?(comp = Pervasives.compare) f = function
-    [] -> invalid_arg "Util.List.find_max_val_with"
+  | [] -> invalid_arg "Util.List.find_max_val_with"
   | hd :: tl -> List.fold_left (fun x y -> let fy = f y in if comp x fy > 0 then x else fy) (f hd) tl
 
 let find_min_val ?(comp = Pervasives.compare) = find_max_val ~comp:(swap_arg comp)
 
 let mapi f =
   let rec mapi_aux f accum n = function
-      [] -> List.rev accum
+    | [] -> List.rev accum
     | x :: xs -> mapi_aux f (f n x :: accum) (n + 1) xs
   in
   mapi_aux f [] 0
@@ -187,7 +186,7 @@ let map_orig = List.map
 
 let map f =
   let rec aux accum = function
-      [] -> List.rev accum
+    | [] -> List.rev accum
     | hd :: tl -> aux (f hd :: accum) tl
   in
   aux []
@@ -212,7 +211,7 @@ let split_while f lst =
       if f hd then
         split_while_aux f (hd :: accum_fst) tl tl
       else
-	(List.rev accum_fst, accum_snd)
+        (List.rev accum_fst, accum_snd)
   in
   split_while_aux f [] lst lst
 
@@ -230,9 +229,9 @@ let take_ns ns lst =
   let rec take_ns_aux ns lst l accum =
     if lst == [] || ns == [] then List.rev accum else
       if l == List.hd ns then
-	take_ns_aux (List.tl ns) (List.tl lst) (l + 1) (List.hd lst :: accum)
+        take_ns_aux (List.tl ns) (List.tl lst) (l + 1) (List.hd lst :: accum)
       else
-	take_ns_aux ns (List.tl lst) (l + 1) accum
+        take_ns_aux ns (List.tl lst) (l + 1) accum
   in
   take_ns_aux ns lst 0 [] (* preserves order *)
 
@@ -269,8 +268,8 @@ let remove_adjacent_tuple m xs =
   in
   let rec remove_eager pattern xs =
     match remove pattern xs with
-      None -> xs
-    | Some xs' -> remove_eager pattern xs'
+      | None -> xs
+      | Some xs' -> remove_eager pattern xs'
   in
   let rec aux pred xs accum =
     let removed = remove_eager pred xs in
@@ -288,10 +287,10 @@ let n_divide n k =
       [[n]]
     else
       let rec aux2 n k i accum =
-	if i <= 0 then accum
-	else
-	  let shorten = List.map (fun xs -> i :: xs) (aux (n - i) (k - 1)) in
-	  aux2 n k (i - 1) (shorten @ accum)
+        if i <= 0 then accum
+        else
+          let shorten = List.map (fun xs -> i :: xs) (aux (n - i) (k - 1)) in
+          aux2 n k (i - 1) (shorten @ accum)
       in
       aux2 n k (n - 1) []
   in
