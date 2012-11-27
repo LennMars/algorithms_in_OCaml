@@ -51,3 +51,4 @@ val combination : int -> int -> int list
 val remove_duplicated : 'a list -> 'a list
 val tuplize : 'a list -> 'b list -> ('a * 'b) list
 val pack : ?comp:('a -> 'a -> int) -> 'a list -> ('a * int) list
+val filter_map : ('a -> 'b option) -> 'a list -> 'b list

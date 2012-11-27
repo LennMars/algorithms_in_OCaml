@@ -332,3 +332,11 @@ let pack ?(comp = Pervasives.compare) xs =
   match List.sort comp xs with
     | [] -> []
     | l :: r -> aux l 1 [] r
+
+let filter_map f xs =
+  let rec aux acc = function
+    | [] -> List.rev acc
+    | l :: r -> match f l with
+        | Some x -> aux (x :: acc) r
+        | None -> aux acc r in
+  aux [] xs
